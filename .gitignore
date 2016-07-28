@@ -3,7 +3,6 @@
 
 # Python staff
 __pycache__/
-__init__.py
 
 # Virtualenv staff
 bin/
