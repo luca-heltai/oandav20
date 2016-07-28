@@ -1,2 +1,2 @@
-# oanda_v20_rest_api_wrapper
-A Python library for Oanda v20 REST API
+# Oandav20
+A unofficial Python package (wrapper) for Oanda v20 REST API.
