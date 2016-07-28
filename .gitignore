@@ -1,0 +1,13 @@
+# Linux staff
+*~
+
+# Python staff
+__pycache__/
+__init__.py
+
+# Virtualenv staff
+bin/
+include/
+lib/
+pip-selfcheck.json
+
