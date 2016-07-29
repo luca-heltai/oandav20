@@ -4,9 +4,3 @@
 # Python staff
 __pycache__/
 
-# Virtualenv staff
-bin/
-include/
-lib/
-pip-selfcheck.json
-

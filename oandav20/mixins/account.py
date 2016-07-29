@@ -138,8 +138,8 @@ INSTRUMENTS = {
 }
 
 
-class AccountMixin:
-	"""Methods in AccountMixin class handles the account endpoints."""
+class AccountMixin(object):
+	"""Methods in the AccountMixin class handles the account endpoints."""
 	
 	def get_instruments_details(self, instruments=[], account_id=""):
 		"""Get details for 1 or more or all instruments.

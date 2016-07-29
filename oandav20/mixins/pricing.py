@@ -2,7 +2,7 @@ from account import INSTRUMENTS
 
 
 class PricingMixin(object):
-	"""Methods in PricingMixin class handles the pricing endpoints."""
+	"""Methods in the PricingMixin class handles the pricing endpoints."""
 		
 	def get_price_info(self, instruments):
 		"""Get price information for 1 or more instruments.
