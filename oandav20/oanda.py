@@ -1,10 +1,11 @@
 import requests
 
 from mixins.account import AccountMixin
+from mixings.orders import OrdersMixin
 from mixins.pricing import PricingMixin
 
 
-class Oanda(AccountMixin, PricingMixin):
+class Oanda(AccountMixin, OrdersMixin, PricingMixin):
 	"""Oanda is the only (main) class, which should be used by user.
 	
 	It consist of several inherited mixins which extends funcionality of this 
@@ -20,31 +21,37 @@ class Oanda(AccountMixin, PricingMixin):
 	the use user provide an different ID to the methods.
 		
 	Attrs:
-		__base_url (str): Prefix for all endpoints.
-		__client (object): Session object with HTTP persistent connection to 
-			the Oanda API server.
-		default_id (str): Oanda account ID.
+		__base_url (str):
+			Prefix for all endpoints.
+		__client (object):
+			Session object with HTTP persistent connection to the Oanda API 
+			server.
+		default_id (str):
+			Oanda account ID.
 	"""
 	
 	def __init__(self, environment, access_token, default_id):
 		"""Initialize an instance of class Oanda. 
 		
 		Args:
-			environment (str): Accepts only "demo" or "real".
-			access_token (str): Access token for user authentication.
-			default_id (str): Oanda account ID.
+			environment (str):
+				Accepts only value "DEMO" or "REAL".
+			access_token (str):
+				Access token for user authentication.
+			default_id (str):
+				Oanda account ID.
 		
 		Raises:
-			ValueError: "demo" or "real" wasn't passed to 'environment' 
+			ValueError:
+				Value "DEMO" or "REAL" wasn't passed to the 'environment' 
 				parameter.
 		"""
-		if environment == "demo":
+		if environment == "DEMO":
 			self.__base_url = "https://api-fxpractice.oanda.com/v3/accounts"
-		elif environment == "real":
+		elif environment == "REAL":
 			self.__base_url = "https://api-fxtrade.oanda.com/v3/accounts"
 		else:
-			raise ValueError("Invalid argument passed to the 'environment' "
-				"parameter.")
+			raise ValueError("Invalid environment '{}'.".format(environment))
 
 		self.__client = requests.Session()
 		self.__client.headers["Authorization"] = "Bearer " + access_token
@@ -59,9 +66,12 @@ class Oanda(AccountMixin, PricingMixin):
 		aren't covered in this package.
 		
 		Args:
-			endpoint (str): Suffix of a URL.
-			method (str, optional): HTTP method written in capital letters.
-			**kwargs: Same keywords arguments like for 'request' object from 
+			endpoint (str):
+				Suffix of a URL.
+			method (str, optional, default "GET"):
+				HTTP method written in capital letters.
+			**kwargs:
+				Same keywords arguments like for 'request' object from 
 				'requests' package.
 		
 		Returns:

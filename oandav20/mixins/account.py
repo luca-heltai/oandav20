@@ -148,11 +148,18 @@ class AccountMixin(object):
 		parameter, then will be returned details for all instruments. 
 		
 		Args:
-			instruments (list): Code of instrument(s).
-			account_id (str): Oanda account ID.
+			instruments (list):
+				Code of instrument(s).
+			account_id (str):
+				Oanda account ID.
 		
 		Returns:
 			JSON object with instrument(s) details.
+		
+		Raises:
+			ValueError:
+				Invalid instrument code(s) passed to the 'instruments' 
+				parameter.
 		"""
 		account_id = account_id or self.default_id
 		endpoint = "/{}/instruments".format(account_id)
@@ -162,8 +169,8 @@ class AccountMixin(object):
 				if code in INSTRUMENTS.values():
 					continue
 				else:
-					raise ValueError("Invalid instrument code '{}' passed to "
-						"the 'instruments' parameter.".format(code))
+					raise ValueError("Invalid instrument code '{}'".format(
+						code))
 		
 		url_params = {"instruments": ",".join(instruments)}
 		response = self.send_request(endpoint, params=url_params)

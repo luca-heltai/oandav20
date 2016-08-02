@@ -4,23 +4,26 @@ from account import INSTRUMENTS
 class PricingMixin(object):
 	"""Methods in the PricingMixin class handles the pricing endpoints."""
 		
-	def get_price_info(self, instruments):
-		"""Get price information for 1 or more instruments.
+	def get_pricing_info(self, instruments):
+		"""Get pricing information for 1 or more instruments.
 		
 		Args:
-			instruments (list): Code of instrument(s).
+			instruments (list):
+				Code of instrument(s).
 		
 		Note:
 			Even if instrument code(s) are invalid, Oanda responds with HTTP 
-			status 200 and normal JSON Price object, however details won't be 
+			status 200 and normal JSON Pricing object, however details won't be 
 			provided and thus an instrument code control is needed.
 	
 		Returns:
-			JSON object with price information.
+			JSON object with pricing information.
 		
 		Raises:
-			HTTPError: HTTP status code is 4xx or 5xx.
-			ValueError: Invalid instrument code passed to the 'instruments' 
+			HTTPError:
+				HTTP status code is 4xx or 5xx.
+			ValueError:
+				Invalid instrument code passed to the 'instruments' 
 				parameter.
 		"""
 		account_id = self.default_id
@@ -30,8 +33,7 @@ class PricingMixin(object):
 			if code in INSTRUMENTS.values():
 				continue
 			else:
-				raise ValueError("Invalid instrument code '{}' passed to the "
-					"'instruments' parameter.".format(code))
+				raise ValueError("Invalid instrument code '{}'.".format(code))
 			
 		url_params = {"instruments": ",".join(instruments)}
 		response = self.send_request(endpoint, params=url_params)
