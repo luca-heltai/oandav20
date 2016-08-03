@@ -7,7 +7,7 @@ class PricingMixin(object):
 	def get_pricing_info(self, instruments):
 		"""Get pricing information for 1 or more instruments.
 		
-		Args:
+		Arguments:
 			instruments (list):
 				Code of instrument(s).
 		
@@ -17,7 +17,7 @@ class PricingMixin(object):
 			provided and thus an instrument code control is needed.
 	
 		Returns:
-			JSON object with pricing information.
+			JSON object with the pricing information.
 		
 		Raises:
 			HTTPError:

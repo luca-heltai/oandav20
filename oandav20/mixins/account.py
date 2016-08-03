@@ -147,14 +147,14 @@ class AccountMixin(object):
 		If a user won't pass any instrument code(s) to the 'instruments' 
 		parameter, then will be returned details for all instruments. 
 		
-		Args:
+		Arguments:
 			instruments (list):
 				Code of instrument(s).
 			account_id (str):
 				Oanda account ID.
 		
 		Returns:
-			JSON object with instrument(s) details.
+			JSON object with the instrument(s) details.
 		
 		Raises:
 			ValueError:

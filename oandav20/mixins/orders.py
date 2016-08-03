@@ -9,11 +9,11 @@ class OrdersMixin:
 	"""Methods in the OrdersMixin class handles the orders endpoints."""
 	
 	def create_order(self, order_type, instrument, side, units, price=0,
-		price_bound=0, time_in_force="", stoploss=0, takeprofit=0, own_id="", 
-		tag="", comment="", account_id=""):
+		price_bound=0, time_in_force="", gtd_time="", stoploss=0, takeprofit=0, 
+		own_id="", tag="", comment="", account_id=""):
 		"""Create an order for the given instrument with specified parameters.
 		
-		Args:
+		Arguments:
 			order_type (str):
 				Type of order, accepting only value "MARKET", "LIMIT", "STOP" 
 				or "MARKET_IF_TOUCHED".
@@ -34,7 +34,7 @@ class OrdersMixin:
 				"GTD" or "GFD" codes. "FOK" is default for the "MARKET" type 
 				and "GTC" for the waiting types.
 			gtd_time (str, optional):
-				String represention of an DateTime object in RFC 3339 format.   
+				String represention of DateTime object in RFC 3339 format.   
 			stoploss (int, optional):
 				Price where the trade ends around and user losses money.
 			trailing_stoploss (int, optional):
@@ -44,8 +44,8 @@ class OrdersMixin:
 			takeprofit (int, optional):
 				Price where the trade ends and user gets profit.
 			own_id (str, optional):
-				Custom user ID used for this order and if filled, then for the
-				open trade.
+				Custom user ID used for this order and if filled, then also for 
+				the open trade.
 			tag (str, optional):
 				Custom user tag for tagging this order.
 			comment (str, optional):
@@ -67,7 +67,7 @@ class OrdersMixin:
 				4. Invalid size of units passed to the 'units' parameter.
 				5. Invalid TimeInForce code for the given type of order.
 				
-		TODO:
+		Todo:
 			- add 'position_fill' parameter if some day a user of this package 
 			will want use this option.
 		"""
@@ -86,7 +86,7 @@ class OrdersMixin:
 		if not units > 0:
 			raise ValueError("Invalid size of units '{}'.".format(units))
 		
-		# Units have to be negative for "SELL" order.
+		# Units have to be negative for the "SELL" order.
 		
 		if side == "SELL":
 			units = units * -1
@@ -142,6 +142,9 @@ class OrdersMixin:
 		# Other voluntary keys which cannot be placed in the "body" variable 
 		# if they are empty, otherwise Oanda raises error messages for them. 
 		
+		if gtd_time and time_in_force == "GTD":
+			body["order"].update({"gtdTime": gtd_time})
+		
 		if price:
 			body["order"].update({"price": str(price)})
 		
@@ -178,58 +181,132 @@ class OrdersMixin:
 			response.raise_for_error()
 	
 		return response.status_code == 201
-		
+	
 	def get_order_details(self, order_id=0, own_id="", account_id=""):
-		"""
+		"""Get details for the given order ID.
+		
+		User may choose if the order details will be obtained by Oanda ID or 
+		custom ID. 
+		
+		Arguments:
+			order_id (int, optinal):
+				Order ID provided by Oanda.
+			own_id (str, optinal):
+				Custom user ID used for identifying orders.
+			account_id (str, optinal):
+				Oanda account ID.
+			
+		Returns:
+			JSON object with the order details.
+			
+		Raises:
+			TypeError:
+				Missing argument for the 'order_id' or 'own_id' parameter.
 		"""
 		account_id = account_id or self.default_id
+		
+		if not order_id and not own_id:
+			raise TypeError("Missing argument for the 'order_id' or 'own_id' "
+				"parameter.")
 		
 		if own_id:
 			order_id = "@" + own_id
 			
 		endpoint = "/{0}/orders/{1}".format(account_id, order_id)
+		response = self.send_request(endpoint)
 		
-		return self.send_request(endpoint)
-	
+		if response.status_code >= 400:
+			response.raise_for_error()
+			
+		return response.json()
+
 	def get_pending_orders(self, account_id=""):
+		"""Get list of all pending orders.
+		
+		Arguments:
+			account_id (str, optinal):
+				Oanda account ID.
+		
+		Returns:
+			JSON object with the pending orders details.
+		
+		Raises:
+			HTTPError:
+				HTTP status code is 4xx or 5xx.
+		"""
 		account_id = account_id or self.default_id
 		endpoint = "/{}/pendingOrders".format(account_id)
 		
-		return self.send_request(endpoint)
+		response = self.send_request(endpoint)
+		
+		if response.status_code >= 400:
+			response.raise_for_error()
 	
-	def modify_pending_order(self, order_id=0, own_id="", price=0,
-			price_bound=0, units=0, stoploss=0, takeprofit=0, new_own_id="", 
-			tag="", comment="", account_id=""):
-		"""User may use custom ID via '@value'"""
+		return response.json()
+	
+	def modify_pending_order(self, order_id=0, own_id="", price=0, 
+		price_bound=0, stoploss=0, trailing_stoploss=0, takeprofit=0, units=0, 
+		account_id=""):
+		"""Modify values for the specific pending order.
+		
+		User may modify only such as values 'price', 'stoploss', 'takeprofit' 
+		etc., not change change instrument or even order type / side. For these 
+		situations must close the pending order himself / herself and create
+		new one.
+		
+		Arguments:
+			order_id (int, optional):
+				Oanda intern order ID.
+			own_id (str, optional):
+				Custom user order ID.
+
+		Returns:
+			True if used custom user ID or new Oanda order ID if the old Oanda
+			order ID was used.
+			
+		Raises:
+			HTTPError:
+				HTTP status code is 4xx or 5xx.
+			TypeError:
+				Missing argument for the 'order_id' or 'own_id' parameter.
+		
+		Todo:
+			- add more options for modyfying values, eg. 'gtd_time', 
+			'time_in_force' etc. if somebody wants that.
+		"""
 		account_id = account_id or self.default_id
+		
+		if not order_id and not own_id:
+			raise TypeError("Missing argument for the 'order_id' or 'own_id' "
+				"parameter.")
+		
+		if order_id:
+			used_oanda_id = True
 		
 		if own_id:
 			order_id = "@" + own_id
 			
 		endpoint = "/{0}/orders/{1}".format(account_id, order_id)
 		
-		# 
+		old_order_detail = self.get_order_details(order_id, 
+			account_id=account_id).json()["order"]
 		
-		order_detail = (
-			self.get_order_details(order_id, account_id=account_id)
-				.json()["order"]
-		)
+		# Oanda added internal keys which are incompatible with the order 
+		# structure.
 		
-		# Remove unwanted Oanda in-house keys from order_detail
-		
-		unwanted_keys = [
-			"createTime", "id", "partialFill", "state", "triggerCondition"
-		]
+		unwanted_keys = ["createTime", "id", "partialFill", "state", 
+			"triggerCondition"]
 		
 		for key in unwanted_keys:
-			order_detail.pop(key)
+			old_order_detail.pop(key)
 			
 		# Change value for key "positionFill" to "DEFAULT" because Oanda
-		# has changed internally the value for their purposes
+		# has changed internally the value for their purposes and is also
+		# incompatible ...
 		
 		order_detail["positionFill"] = "DEFAULT"
 		
-		# Update values as a user demands (eg. change stoploss price)
+		# Update values as user demands.
 		
 		if price:
 			order_detail["price"] = str(price)
@@ -237,36 +314,72 @@ class OrdersMixin:
 		if price_bound:
 			order_detail["priceBound"] = str(price_bound)
 		
+		if stoploss:
+			order_detail["stopLossOnFill"]["price"] = str(stoploss)
+		
+		if trailing_stoploss:
+			order_detail["trailingStopLossOnFill"]["distance"] = str(
+				trailing_stoploss)
+			
+		if takeprofit:
+			order_detail["takeProfitOnFill"]["price"] = str(stoploss)
+			
 		if units:
 			order_detail["units"] = str(units)
 		
-		if stoploss:
-			order_detail["stopLossOnFill"]["price"] = str(stoploss)
+		new_order = {"order": order_detail}
+		response = self.send_request(endpoint, "PUT", json=new_order)
+		
+		if response.status_code >= 400:
+			response.raise_for_error()
+		
+		if used_oanda_id:
+			return response.json()["OrderCreateTransaction"]["id"]
+		else:
+			return True
+		
+	def cancel_pending_order(self, order_id=0, own_id="", account_id=""):
+		"""Cancel pending order for the given order ID.
+		
+		User may choose if the order details will be obtained by Oanda ID or 
+		custom ID. 
+		
+		Arguments:
+			order_id (int, optinal):
+				Order ID provided by Oanda.
+			own_id (str, optinal):
+				Custom user ID used for identifying orders.
+			account_id (str, optinal):
+				Oanda account ID.
 			
-		if takeprofit:
-			order_detail["stopLossOnFill"]["price"] = str(stoploss)
-		
-		if new_own_id:
-			order_detail["clientExtensions"]["id"] = new_own_id
-		
-		if tag:
-			order_detail["clientExtensions"]["tag"] = tag
-		
-		if comment:
-			order_detail["clientExtensions"]["comment"] = comment
-		
-		order = {"order": order_detail}
-		
-		return self.send_request(endpoint, "PUT", json=order)
-		
-	def cancel_pending_order(self, order_id, account_id=""):
+		Returns:
+			True, if the pending order was cancelled.
+			
+		Raises:
+			TypeError:
+				Missing argument for the 'order_id' or 'own_id' parameter.
+		"""
 		account_id = account_id or self.default_id
-		endpoint = "/{0}/orders/{1}/cancel".format(account_id, order_id)
 		
-		return self.send_request(endpoint, "PUT")
+		if not order_id and not own_id:
+			raise TypeError("Missing argument for the 'order_id' or 'own_id' "
+				"parameter.")
+		
+		if own_id:
+			order_id = "@" + own_id
+			
+		endpoint = "/{0}/orders/{1}/cancel".format(account_id, order_id)
+		response = self.send_request(endpoint, "PUT")
+		
+		if response.status_code >= 400:
+			response.raise_for_error()
+			
+		return response.status_code == 200
 	
 	def cancel_all_pending_orders(self):
-		"""use async
-		default all, if insturment, then only for given instrumet
+		"""Cancel all pending orders.
+		
+		Todo:
+			- use async 
 		"""
 		pass

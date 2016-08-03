@@ -20,7 +20,7 @@ class Oanda(AccountMixin, OrdersMixin, PricingMixin):
 	Therefore a 'default_id' attribute will be used for these situations unless 
 	the use user provide an different ID to the methods.
 		
-	Attrs:
+	Attributes:
 		__base_url (str):
 			Prefix for all endpoints.
 		__client (object):
@@ -33,7 +33,7 @@ class Oanda(AccountMixin, OrdersMixin, PricingMixin):
 	def __init__(self, environment, access_token, default_id):
 		"""Initialize an instance of class Oanda. 
 		
-		Args:
+		Arguments:
 			environment (str):
 				Accepts only value "DEMO" or "REAL".
 			access_token (str):
@@ -65,7 +65,7 @@ class Oanda(AccountMixin, OrdersMixin, PricingMixin):
 		User may also use this method for accessing another endpoints which 
 		aren't covered in this package.
 		
-		Args:
+		Arguments:
 			endpoint (str):
 				Suffix of a URL.
 			method (str, optional, default "GET"):
