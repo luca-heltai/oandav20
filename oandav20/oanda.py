@@ -1,11 +1,12 @@
 import requests
 
 from mixins.account import AccountMixin
-from mixings.orders import OrdersMixin
+from mixins.orders import OrdersMixin
+from mixins.trades import TradesMixin
 from mixins.pricing import PricingMixin
 
 
-class Oanda(AccountMixin, OrdersMixin, PricingMixin):
+class Oanda(AccountMixin, OrdersMixin, TradesMixin, PricingMixin):
 	"""Oanda is the only (main) class, which should be used by user.
 	
 	It consist of several inherited mixins which extends funcionality of this 

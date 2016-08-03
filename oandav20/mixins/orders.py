@@ -5,7 +5,7 @@ SIDE = ["BUY", "SELL"]
 TIME_IN_FORCE = ["FOK", "IOC", "GTC", "GTD", "GFD"]
 
 
-class OrdersMixin:
+class OrdersMixin(object):
 	"""Methods in the OrdersMixin class handles the orders endpoints."""
 	
 	def create_order(self, order_type, instrument, side, units, price=0,
