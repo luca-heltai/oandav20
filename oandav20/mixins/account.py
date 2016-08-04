@@ -176,6 +176,6 @@ class AccountMixin(object):
 		response = self.send_request(endpoint, params=url_params)
 		
 		if response.status_code >= 400:
-			response.raise_for_error()
+			response.raise_for_status()
 	
 		return response.json()

@@ -1,4 +1,4 @@
-from account import INSTRUMENTS
+from .account import INSTRUMENTS
 
 ORDER_TYPE = ["MARKET", "LIMIT", "STOP", "MARKET_IF_TOUCHED"]
 SIDE = ["BUY", "SELL"]
@@ -9,8 +9,9 @@ class OrdersMixin(object):
 	"""Methods in the OrdersMixin class handles the orders endpoints."""
 	
 	def create_order(self, order_type, instrument, side, units, price=0,
-		price_bound=0, time_in_force="", gtd_time="", stoploss=0, takeprofit=0, 
-		own_id="", tag="", comment="", account_id=""):
+		price_bound=0, time_in_force="", gtd_time="", stoploss=0, 
+		trailing_stoploss=0, takeprofit=0, own_id="", tag="", comment="", 
+		account_id=""):
 		"""Create an order for the given instrument with specified parameters.
 		
 		Arguments:
@@ -97,7 +98,7 @@ class OrdersMixin(object):
 					time_in_force = time_in_force
 				else: 
 					raise ValueError("Invalid TimeInForce code '{}' for the "
-						"'{}' order.".format(time_in_force, order_type)))
+						"'{}' order.".format(time_in_force, order_type))
 			else:
 				time_in_force = "FOK"
 		elif order_type in ORDER_TYPE[1:]:
@@ -106,7 +107,7 @@ class OrdersMixin(object):
 					time_in_force = time_in_force
 				else:
 					raise ValueError("Invalid TimeInForce code '{}' for the "
-						"'{}' order.".format(time_in_force, order_type)))
+						"'{}' order.".format(time_in_force, order_type))
 			else:
 				time_in_force = "GTC"
 			
@@ -178,7 +179,7 @@ class OrdersMixin(object):
 		response = self.send_request(endpoint, "POST", json=body)
 		
 		if response.status_code >= 400:
-			response.raise_for_error()
+			response.raise_for_status()
 	
 		return response.status_code == 201
 	
@@ -216,7 +217,7 @@ class OrdersMixin(object):
 		response = self.send_request(endpoint)
 		
 		if response.status_code >= 400:
-			response.raise_for_error()
+			response.raise_for_status()
 			
 		return response.json()
 
@@ -240,7 +241,7 @@ class OrdersMixin(object):
 		response = self.send_request(endpoint)
 		
 		if response.status_code >= 400:
-			response.raise_for_error()
+			response.raise_for_status()
 	
 		return response.json()
 	
@@ -261,8 +262,8 @@ class OrdersMixin(object):
 				Custom user order ID.
 
 		Returns:
-			True if used custom user ID or new Oanda order ID if the old Oanda
-			order ID was used.
+			True if used custom user ID or new Oanda order ID in string if the 
+			old Oanda order ID was used.
 			
 		Raises:
 			HTTPError:
@@ -282,14 +283,17 @@ class OrdersMixin(object):
 		
 		if order_id:
 			used_oanda_id = True
+			
+			old_order_details = self.get_order_details(order_id, 
+				account_id=account_id)["order"]
 		
 		if own_id:
 			order_id = "@" + own_id
 			
+			old_order_details = self.get_order_details(own_id=own_id, 
+				account_id=account_id)["order"]
+			
 		endpoint = "/{0}/orders/{1}".format(account_id, order_id)
-		
-		old_order_detail = self.get_order_details(order_id, 
-			account_id=account_id).json()["order"]
 		
 		# Oanda added internal keys which are incompatible with the order 
 		# structure.
@@ -298,43 +302,61 @@ class OrdersMixin(object):
 			"triggerCondition"]
 		
 		for key in unwanted_keys:
-			old_order_detail.pop(key)
+			old_order_details.pop(key)
 			
 		# Change value for key "positionFill" to "DEFAULT" because Oanda
 		# has changed internally the value for their purposes and is also
 		# incompatible ...
 		
-		order_detail["positionFill"] = "DEFAULT"
+		old_order_details["positionFill"] = "DEFAULT"
 		
 		# Update values as user demands.
 		
 		if price:
-			order_detail["price"] = str(price)
+			old_order_details["price"] = str(price)
 		
 		if price_bound:
-			order_detail["priceBound"] = str(price_bound)
+			old_order_details["priceBound"] = str(price_bound)
 		
 		if stoploss:
-			order_detail["stopLossOnFill"]["price"] = str(stoploss)
+			try:
+				old_order_details["stopLossOnFill"]["price"] = str(stoploss)
+			except KeyError:
+				old_order_details["stopLossOnFill"] = {
+					"price": str(stoploss),
+					"timeInForce": "GTC"
+				}
 		
 		if trailing_stoploss:
-			order_detail["trailingStopLossOnFill"]["distance"] = str(
-				trailing_stoploss)
+			try:
+				old_order_details["trailingStopLossOnFill"]["distance"] = \
+					str(trailing_stoploss)
+			except KeyError:
+				old_order_details["trailingStopLossOnFill"] = {
+					"distance": str(trailing_stoploss),
+					"timeInForce": "GTC"
+				}
 			
 		if takeprofit:
-			order_detail["takeProfitOnFill"]["price"] = str(stoploss)
+			try:
+				old_order_details["takeProfitOnFill"]["price"] = str(stoploss)
+			except KeyError:
+				old_order_details["takeProfitOnFill"] = {
+					"price": str(takeprofit),
+					"timeInForce": "GTC"
+				}
 			
 		if units:
-			order_detail["units"] = str(units)
+			old_order_details["units"] = str(units)
 		
-		new_order = {"order": order_detail}
+		new_order = {"order": old_order_details}
 		response = self.send_request(endpoint, "PUT", json=new_order)
 		
 		if response.status_code >= 400:
-			response.raise_for_error()
+			response.raise_for_status()
 		
 		if used_oanda_id:
-			return response.json()["OrderCreateTransaction"]["id"]
+			return response.json()["orderCreateTransaction"]["id"]
 		else:
 			return True
 		
@@ -372,7 +394,7 @@ class OrdersMixin(object):
 		response = self.send_request(endpoint, "PUT")
 		
 		if response.status_code >= 400:
-			response.raise_for_error()
+			response.raise_for_status()
 			
 		return response.status_code == 200
 	
