@@ -21,7 +21,7 @@ class PricingMixin(object):
 		
 		Raises:
 			HTTPError:
-				HTTP status code is 4xx or 5xx.
+				HTTP response status code is 4xx or 5xx.
 			ValueError:
 				Invalid instrument code passed to the 'instruments' 
 				parameter.

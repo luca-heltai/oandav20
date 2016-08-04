@@ -14,6 +14,10 @@ class OrdersMixin(object):
 		account_id=""):
 		"""Create an order for the given instrument with specified parameters.
 		
+		If a used didn'ŧ place own ID then he / she must remember ID created by
+		Oanda. Both IDs are necessary for futher manipulation with orders / 
+		trades.
+		
 		Arguments:
 			order_type (str):
 				Type of order, accepting only value "MARKET", "LIMIT", "STOP" 
@@ -57,7 +61,7 @@ class OrdersMixin(object):
 			
 		Raises:
 			HttpError:
-				HTTP status code is 4xx or 5xx.
+				HTTP response status code is 4xx or 5xx.
 			TypeError:
 				Argument for the 'price' parameter is required, if the order 
 				type is "LIMIT" or "STOP" or "MARKET_IF_TOUCHED".
@@ -181,6 +185,8 @@ class OrdersMixin(object):
 		if response.status_code >= 400:
 			response.raise_for_status()
 	
+		### ADD RETURNED OANDA ID IF USER DIDN'T SPECIFIED THE 'OWN_ID'.
+	
 		return response.status_code == 201
 	
 	def get_order_details(self, order_id=0, own_id="", account_id=""):
@@ -233,7 +239,7 @@ class OrdersMixin(object):
 		
 		Raises:
 			HTTPError:
-				HTTP status code is 4xx or 5xx.
+				HTTP response status code is 4xx or 5xx.
 		"""
 		account_id = account_id or self.default_id
 		endpoint = "/{}/pendingOrders".format(account_id)
@@ -267,7 +273,7 @@ class OrdersMixin(object):
 			
 		Raises:
 			HTTPError:
-				HTTP status code is 4xx or 5xx.
+				HTTP response status code is 4xx or 5xx.
 			TypeError:
 				Missing argument for the 'order_id' or 'own_id' parameter.
 		
