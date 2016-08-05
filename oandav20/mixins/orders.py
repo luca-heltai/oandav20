@@ -9,9 +9,9 @@ class OrdersMixin(object):
     """Methods in the OrdersMixin class handles the orders endpoints."""
     
     def create_order(self, order_type, instrument, side, units, price=0,
-        price_bound=0, time_in_force="", gtd_time="", stoploss=0, 
-        trailing_stoploss=0, takeprofit=0, own_id="", tag="", comment="", 
-        account_id=""):
+            price_bound=0, time_in_force="", gtd_time="", stoploss=0, 
+            trailing_stoploss=0, takeprofit=0, own_id="", tag="", comment="", 
+            account_id=""):
         """Create an order for the given instrument with specified parameters.
         
         If a used didn'ŧ place own ID then he / she must remember ID created by
@@ -64,7 +64,7 @@ class OrdersMixin(object):
                 HTTP response status code is 4xx or 5xx.
             TypeError:
                 Argument for the 'price' parameter is required, if the order 
-                type is "LIMIT" or "STOP" or "MARKET_IF_TOUCHED".
+                type is either "LIMIT" or "STOP" or "MARKET_IF_TOUCHED".
             ValueError:
                 1. Invalid order type passed to the 'order_type' parameter.
                 2. Invalid instrument code passed to the 'instrument' parameter.
@@ -208,13 +208,14 @@ class OrdersMixin(object):
             
         Raises:
             TypeError:
-                Missing argument for the 'order_id' or 'own_id' parameter.
+                Missing argument either for the 'order_id' or 'own_id' 
+                parameter.
         """
         account_id = account_id or self.default_id
         
         if not order_id and not own_id:
-            raise TypeError("Missing argument for the 'order_id' or 'own_id' "
-                "parameter.")
+            raise TypeError("Missing argument either for the 'order_id' or " 
+                "'own_id' parameter.")
         
         if own_id:
             order_id = "@" + own_id
@@ -252,8 +253,8 @@ class OrdersMixin(object):
         return response.json()
     
     def modify_pending_order(self, order_id=0, own_id="", price=0, 
-        price_bound=0, stoploss=0, trailing_stoploss=0, takeprofit=0, units=0, 
-        account_id=""):
+            price_bound=0, stoploss=0, trailing_stoploss=0, takeprofit=0,
+            units=0, account_id=""):
         """Modify values for the specific pending order.
         
         User may modify only such as values 'price', 'stoploss', 'takeprofit' 
@@ -275,7 +276,8 @@ class OrdersMixin(object):
             HTTPError:
                 HTTP response status code is 4xx or 5xx.
             TypeError:
-                Missing argument for the 'order_id' or 'own_id' parameter.
+                Missing argument either for the 'order_id' or 'own_id' 
+                parameter.
         
         Todo:
             - add more options for modyfying values, eg. 'gtd_time', 
@@ -284,8 +286,8 @@ class OrdersMixin(object):
         account_id = account_id or self.default_id
         
         if not order_id and not own_id:
-            raise TypeError("Missing argument for the 'order_id' or 'own_id' "
-                "parameter.")
+            raise TypeError("Missing argument either for the 'order_id' or "
+                "'own_id' parameter.")
         
         if order_id:
             used_oanda_id = True
@@ -304,8 +306,9 @@ class OrdersMixin(object):
         # Oanda added internal keys which are incompatible with the order 
         # structure.
         
-        unwanted_keys = ["createTime", "id", "partialFill", "state", 
-            "triggerCondition"]
+        unwanted_keys = [
+            "createTime", "id", "partialFill", "state", "triggerCondition"
+        ]
         
         for key in unwanted_keys:
             old_order_details.pop(key)
@@ -385,13 +388,14 @@ class OrdersMixin(object):
             
         Raises:
             TypeError:
-                Missing argument for the 'order_id' or 'own_id' parameter.
+                Missing argument either for the 'order_id' or 'own_id' 
+                parameter.
         """
         account_id = account_id or self.default_id
         
         if not order_id and not own_id:
-            raise TypeError("Missing argument for the 'order_id' or 'own_id' "
-                "parameter.")
+            raise TypeError("Missing argument either for the 'order_id' or "
+                "'own_id' parameter.")
         
         if own_id:
             order_id = "@" + own_id
