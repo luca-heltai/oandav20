@@ -1,15 +1,15 @@
 INSTRUMENTS = {
     # Bonds
-    
+
     "Bund": "DE10YB_EUR",
     "UK 10Y Gilt": "UK10YB_GBP",
     "US 10Y T-Note": "USB10Y_USD",
     "US 2Y T-Note": "USB02Y_USD",
     "US 5Y T-Note": "USB05Y_USD",
     "US T-Bond": "USB30Y_USD",
-    
+
     # Commodities
-    
+
     "Brent Crude Oil": "BCO_USD",
     "Corn": "CORN_USD",
     "Natural Gas": "NATGAS_USD",
@@ -17,9 +17,9 @@ INSTRUMENTS = {
     "Sugar": "SUGAR_USD",
     "West Texas Oil": "WTICO_USD",
     "Wheat": "WHEAT_USD",
-    
+
     # Forex
-    
+
     "AUD/CAD": "AUD_CAD",
     "AUD/CHF": "AUD_CHF",
     "AUD/HKD": "AUD_HKD",
@@ -91,9 +91,9 @@ INSTRUMENTS = {
     "USD/TRY": "USD_TRY",
     "USD/ZAR": "USD_ZAR",
     "ZAR/JPY": "ZAR_JPY",
-    
+
     # Indices
-    
+
     "Australia 200": "AU200_AUD",
     "Europe 50": "EU50_EUR",
     "France 40": "FR40_EUR",
@@ -108,9 +108,9 @@ INSTRUMENTS = {
     "US Russ 2000": "US2000_USD",
     "US SPX 500": "SPX500_USD",
     "US Wall St 30": "US30_USD",
-    
+
     # Metals
-    
+
     "Copper": "XCU_USD",
     "Gold": "XAU_USD",
     "Gold/AUD": "XAU_AUD",
@@ -140,30 +140,30 @@ INSTRUMENTS = {
 
 class AccountMixin(object):
     """Methods in the AccountMixin class handles the account endpoints."""
-    
+
     def get_instruments_details(self, instruments=[], account_id=""):
         """Get details for 1 or more or all instruments.
-        
-        If a user won't pass any instrument code(s) to the 'instruments' 
-        parameter, then will be returned details for all instruments. 
-        
+
+        If a user won't pass any instrument code(s) to the 'instruments'
+        parameter, then will be returned details for all instruments.
+
         Arguments:
             instruments (list):
                 Code of instrument(s).
             account_id (str):
                 Oanda account ID.
-        
+
         Returns:
             JSON object with the instrument(s) details.
-        
+
         Raises:
             ValueError:
-                Invalid instrument code(s) passed to the 'instruments' 
+                Invalid instrument code(s) passed to the 'instruments'
                 parameter.
         """
         account_id = account_id or self.default_id
         endpoint = "/{}/instruments".format(account_id)
-        
+
         if instruments:
             for code in instruments:
                 if code in INSTRUMENTS.values():
@@ -171,11 +171,11 @@ class AccountMixin(object):
                 else:
                     raise ValueError("Invalid instrument code '{}'".format(
                         code))
-        
+
         url_params = {"instruments": ",".join(instruments)}
         response = self.send_request(endpoint, params=url_params)
-        
+
         if response.status_code >= 400:
             response.raise_for_status()
-    
+
         return response.json()
