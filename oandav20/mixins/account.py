@@ -159,6 +159,29 @@ class AccountMixin:
         Returns:
             JSON object (dict) with the instrument(s) details.
 
+        Example:
+            {
+                "instruments": [
+                    {
+                        "displayName": "USD/THB",
+                        "displayPrecision": 3,
+                        "marginRate": "0.05",
+                        "maximumOrderUnits": "100000000",
+                        "maximumPositionSize": "0",
+                        "maximumTrailingStopDistance": "100.000",
+                        "minimumTradeSize": "1",
+                        "minimumTrailingStopDistance": "0.050",
+                        "name": "USD_THB",
+                        "pipLocation": -2,
+                        "tradeUnitsPrecision": 0,
+                        "type": "CURRENCY"
+                    },
+                    {
+                        ...
+                    }
+                ]
+            }
+
         Raises:
             ValueError:
                 Invalid instrument code(s) passed to the 'instruments'

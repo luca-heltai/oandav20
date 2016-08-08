@@ -1,33 +1,16 @@
+from typing import List
+
+from .account import INSTRUMENTS
+
+
 class TradesMixin:
     """Methods in the TradesMixin class handles the trades endpoints."""
 
-    def get_open_trades(self, account_id: str = "") -> dict:
-        """Get list of all open trades.
-
-        Arguments:
-            account_id (str, optional):
-                Oanda account ID.
-
-        Returns:
-            JSON object (dict) with the open trades details.
-
-        Raises:
-            HTTPError:
-                HTTP response status code is 4xx or 5xx.
-        """
-        account_id = account_id or self.default_id
-        endpoint = "/{}/openTrades".format(account_id)
-
-        response = self.send_request(endpoint)
-
-        if response.status_code >= 400:
-            response.raise_for_status()
-
-        return response.json()
-
-    def get_trade_details(self, trade_id: int = 0, own_id: str = "",
-                          account_id: str = "") -> dict:
+    def get_trade(self, trade_id: int = 0, own_id: str = "",
+                  account_id: str = "") -> dict:
         """Get details for the given trade.
+
+        The trade may be either open or closed.
 
         Arguments:
             trade_id (int, optional):
@@ -40,6 +23,26 @@ class TradesMixin:
         Returns:
             JSON object (dict) with the trade details.
 
+        Example:
+            {
+                "lastTransactionID": "6397",
+                "trade": {
+                    "clientExtensions": {
+                        "id": "my_eur_usd_trade"
+                    },
+                    "currentUnits": "100",
+                    "financing": "0.00000",
+                    "id": "6395",
+                    "initialUnits": "100",
+                    "instrument": "EUR_USD",
+                    "openTime": "2016-06-22T18:41:48.258142231Z",
+                    "price": "1.13033",
+                    "realizedPL": "0.00000",
+                    "state": "OPEN",
+                    "unrealizedPL": "-0.01438"
+                }
+            }
+
         Raises:
             HTTPError:
                 HTTP response status code is 4xx or 5xx.
@@ -51,13 +54,129 @@ class TradesMixin:
 
         if not trade_id and not own_id:
             raise TypeError("Missing argument either for the 'trade_id' or "
-                            "'own_id' parameter.")
+                            "'own_id'.")
 
         if own_id:
             own_id = "@" + own_id
 
         used_id = trade_id or own_id
         endpoint = "/{0}/trades/{1}".format(account_id, used_id)
+        response = self.send_request(endpoint)
+
+        if response.status_code >= 400:
+            response.raise_for_status()
+
+        return response.json()
+
+    def get_filtered_trades(self, trade_ids: List[str] = [], instrument: str
+                            = "", account_id: str = "") -> dict:
+        """Get list of filtered open trades.
+
+        There are picked only the two filters which I consider as reasonable.
+
+        Arguments:
+            trade_ids (list of string, optinal):
+                List of Oanda trade IDs, not custom trade IDs.
+            instrument (str, optional):
+                Code of single instrument.
+            account_id (str, optinal):
+                Oanda account ID.
+
+        Returns:
+            JSON object (dict) with the filtered trades details.
+
+        Example:
+            {
+                "lastTransactionID": "6397",
+                "trades": [
+                    {
+                        "currentUnits": "-600",
+                        "financing": "0.00000",
+                        "id": "6397",
+                        "initialUnits": "-600",
+                        "instrument": "USD_CAD",
+                        "openTime": "2016-06-22T18:41:48.262344782Z",
+                        "price": "1.28241",
+                        "realizedPL": "0.00000",
+                        "state": "OPEN",
+                        "unrealizedPL": "-0.08525"
+                    },
+                    {
+                        ...
+                    }
+                ]
+            }
+
+        Raises:
+            HTTPError:
+                HTTP response status code is 4xx or 5xx.
+            ValueError:
+                Invalid instrument code passed to the 'instrument' parameter.
+        """
+        account_id = account_id or self.default_id
+        endpoint = "/{}/trades".format(account_id)
+        params = {}
+
+        if trade_ids:
+            trade_ids = ",".join(trade_ids)
+            params["ids"] = trade_ids
+
+        if instrument:
+            if instrument in INSTRUMENTS.values():
+                params["instrument"] = instrument
+            else:
+                raise ValueError("Invalid instrument code ''.".format(
+                    instrument))
+
+        response = self.send_request(endpoint, params=params)
+
+        if response.status_code >= 400:
+            response.raise_for_status()
+
+        return response.json()
+
+    def get_open_trades(self, account_id: str = "") -> dict:
+        """Get list of all open trades.
+
+        Arguments:
+            account_id (str, optional):
+                Oanda account ID.
+
+        Returns:
+            JSON object (dict) with the open trades details.
+
+        Example:
+            {
+                "lastTransactionID": "6397",
+                "trades": [
+                    {
+                        "clientExtensions": {
+                            "id": "my_eur_usd_trade"
+                        },
+                        "currentUnits": "100",
+                        "financing": "0.00000",
+                        "id": "6395",
+                        "initialUnits": "100",
+                        "instrument": "EUR_USD",
+                        "openTime": "2016-06-22T18:41:48.258142231Z",
+                        "price": "1.13033",
+                        "realizedPL": "0.00000",
+                        "state": "OPEN",
+                        "unrealizedPL": "-0.01438"
+                    },
+                    {
+                        ...
+                    }
+                ]
+            }
+
+        Raises:
+            HTTPError:
+                HTTP response status code is 4xx or 5xx.
+        """
+        account_id = account_id or self.default_id
+        endpoint = "/{}/openTrades".format(account_id)
+
         response = self.send_request(endpoint)
 
         if response.status_code >= 400:
@@ -103,7 +222,7 @@ class TradesMixin:
 
         if not trade_id and not own_id:
             raise TypeError("Missing argument either for the 'trade_id' or "
-                            "'own_id' parameter.")
+                            "'own_id'.")
 
         if own_id:
             own_id = "@" + own_id
@@ -150,8 +269,68 @@ class TradesMixin:
 
         return response.status_code == 201
 
-    def update_trade_extensions(self):
-        pass
+    def update_trade_extensions(self, trade_id: int = 0, own_id: str = "",
+                                new_own_id: str = "", tag: str = "",
+                                comment: str = "", account_id: str = "") \
+            -> bool:
+        """Update client extensions for the given trade.
+
+        User may choose if wants to get the trade by Oanda ID or custom ID.
+
+        Note:
+            New custom ID or tag should be used very rarely in my opinion.
+
+        Arguments:
+            trade_id (int, optional):
+                Trade ID provided by Oanda.
+            own_id (str, optinal):
+                User custom trade ID.
+            new_own_id (str, optinal):
+                New custom ID which will replace existing custom ID.
+            tag (str, optinal):
+                Trade tag.
+            comment (str, optinal):
+                Trade comment.
+
+        Returns:
+            True, if the trade was succesfully updated.
+
+        Raises:
+            HTTPError:
+                HTTP response status code is 4xx or 5xx.
+            TypeError:
+                Missing argument either for the 'trade_id' or 'own_id'
+                parameter.
+        """
+        account_id = account_id or self.default_id
+
+        if not trade_id and not own_id:
+            raise TypeError("Missing argument either for the 'trade_id' or "
+                            "'own_id'.")
+
+        if own_id:
+            own_id = "@" + own_id
+
+        used_id = trade_id or own_id
+        endpoint = "/{0}/trades/{1}/close".format(account_id, used_id)
+
+        body = {"clientExtensions": {}}
+
+        if new_own_id:
+            body["clientExtensions"]["id"] = new_own_id
+
+        if tag:
+            body["clientExtensions"]["tag"] = tag
+
+        if comment:
+            body["clientExtensions"]["comment"] = comment
+
+        response = self.send_request(endpoint)
+
+        if response.status_code >= 400:
+            response.raise_for_status()
+
+        return response.status_code == 200
 
     def close_trade(self, trade_id: int = 0, own_id: str = "", units: int = 0,
                     account_id: str = "") -> bool:
@@ -184,11 +363,11 @@ class TradesMixin:
 
         if not trade_id and not own_id:
             raise TypeError("Missing argument either for the 'trade_id' or "
-                            "'own_id' parameter.")
+                            "'own_id'.")
 
         if own_id:
             own_id = "@" + own_id
-        
+
         used_id = trade_id or own_id
         endpoint = "/{0}/trades/{1}/close".format(account_id, used_id)
 
