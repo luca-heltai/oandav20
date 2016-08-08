@@ -1,7 +1,7 @@
 class TradesMixin:
     """Methods in the TradesMixin class handles the trades endpoints."""
 
-    def get_open_trades(self, account_id=""):
+    def get_open_trades(self, account_id: str = "") -> dict:
         """Get list of all open trades.
 
         Arguments:
@@ -9,7 +9,7 @@ class TradesMixin:
                 Oanda account ID.
 
         Returns:
-            JSON object with the open trades details.
+            JSON object (dict) with the open trades details.
 
         Raises:
             HTTPError:
@@ -25,7 +25,8 @@ class TradesMixin:
 
         return response.json()
 
-    def get_trade_details(self, trade_id=0, own_id="", account_id=""):
+    def get_trade_details(self, trade_id: int = 0, own_id: str = "",
+                          account_id: str = "") -> dict:
         """Get details for the given trade.
 
         Arguments:
@@ -37,7 +38,7 @@ class TradesMixin:
                 Oanda account ID
 
         Returns:
-            JSON object with the trade details.
+            JSON object (dict) with the trade details.
 
         Raises:
             HTTPError:
@@ -53,9 +54,10 @@ class TradesMixin:
                             "'own_id' parameter.")
 
         if own_id:
-            trade_id = "@" + own_id
+            own_id = "@" + own_id
 
-        endpoint = "/{0}/trades/{1}".format(account_id, trade_id)
+        used_id = trade_id or own_id
+        endpoint = "/{0}/trades/{1}".format(account_id, used_id)
         response = self.send_request(endpoint)
 
         if response.status_code >= 400:
@@ -63,8 +65,9 @@ class TradesMixin:
 
         return response.json()
 
-    def update_trade(self, trade_id=0, own_id="", stoploss=0.0,
-                     trailing_stoploss=0.0, takeprofit=0.0, account_id=""):
+    def update_trade(self, trade_id: int = 0, own_id: str = "",
+                     stoploss: float = 0.0, trailing_stoploss: float = 0.0,
+                     takeprofit: float = 0.0, account_id: str = "") -> bool:
         """Create / update / remove values for the given order, eg. stoploss.
 
         User may choose if wants to update the trade by Oanda ID or custom ID.
@@ -103,9 +106,10 @@ class TradesMixin:
                             "'own_id' parameter.")
 
         if own_id:
-            trade_id = "@" + own_id
+            own_id = "@" + own_id
 
-        endpoint = "/{0}/orders/{1}".format(account_id, trade_id)
+        used_id = trade_id or own_id
+        endpoint = "/{0}/orders/{1}".format(account_id, used_id)
 
         # In this method is different trade structure unlike order in the
         # OrdersMixin clas.
@@ -149,7 +153,8 @@ class TradesMixin:
     def update_trade_extensions(self):
         pass
 
-    def close_trade(self, trade_id=0, own_id="", units=0, account_id=""):
+    def close_trade(self, trade_id: int = 0, own_id: str = "", units: int = 0,
+                    account_id: str = "") -> bool:
         """Close fully or partially the given open trade.
 
         User may choose if wants to close the trade by Oanda ID or custom ID.
@@ -182,9 +187,10 @@ class TradesMixin:
                             "'own_id' parameter.")
 
         if own_id:
-            trade_id = "@" + own_id
-
-        endpoint = "/{0}/trades/{1}/close".format(account_id, trade_id)
+            own_id = "@" + own_id
+        
+        used_id = trade_id or own_id
+        endpoint = "/{0}/trades/{1}/close".format(account_id, used_id)
 
         if units:
             body = {"units": str(units)}

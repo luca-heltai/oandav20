@@ -1,3 +1,5 @@
+from typing import Union
+
 from .account import INSTRUMENTS
 
 ORDER_TYPE = ["MARKET", "LIMIT", "STOP", "MARKET_IF_TOUCHED"]
@@ -5,13 +7,15 @@ SIDE = ["BUY", "SELL"]
 TIME_IN_FORCE = ["FOK", "IOC", "GTC", "GTD", "GFD"]
 
 
-class OrdersMixin(object):
+class OrdersMixin:
     """Methods in the OrdersMixin class handles the orders endpoints."""
 
-    def create_order(self, order_type, instrument, side, units, price=0,
-                     price_bound=0, time_in_force="", gtd_time="", stoploss=0,
-                     trailing_stoploss=0, takeprofit=0, own_id="", tag="",
-                     comment="", account_id=""):
+    def create_order(self, order_type: str, instrument: str, side: str,
+                     units: int, price: float = 0.0, price_bound: float = 0.0,
+                     time_in_force: str = "", gtd_time: str = "",
+                     stoploss: float = 0.0, trailing_stoploss: float = 0.0,
+                     takeprofit: float = 0.0, own_id: str = "", tag: str = "",
+                     comment: str = "", account_id: str = "") -> dict:
         """Create an order for the given instrument with specified parameters.
 
         If a used didn'ŧ place own ID then he / she must remember ID created by
@@ -28,9 +32,9 @@ class OrdersMixin(object):
                 Side of order, accepting only value "BUY" or "SELL".
             units (int):
                 Quantity of order.
-            price (int, optional):
+            price (float, optional):
                 Price level for orders "LIMIT", "STOP" and "MARKET_IF_TOUCHED".
-            price_bound (int, optional):
+            price_bound (float, optional):
                 The worse market price that may be filled, goes only for orders
                 "STOP" and "MARKET_IF_TOUCHED".
             time_in_force (str, optional):
@@ -193,7 +197,8 @@ class OrdersMixin(object):
 
         return response.status_code == 201
 
-    def get_order_details(self, order_id=0, own_id="", account_id=""):
+    def get_order(self, order_id: int = 0, own_id: str = "",
+                          account_id: str = "") -> dict:
         """Get details for the given order ID.
 
         User may choose if the order details will be obtained by Oanda ID or
@@ -208,7 +213,7 @@ class OrdersMixin(object):
                 Oanda account ID.
 
         Returns:
-            JSON object with the order details.
+            JSON object (dict) with the order details.
 
         Raises:
             TypeError:
@@ -222,9 +227,10 @@ class OrdersMixin(object):
                             "'own_id' parameter.")
 
         if own_id:
-            order_id = "@" + own_id
+            own_id = "@" + own_id
 
-        endpoint = "/{0}/orders/{1}".format(account_id, order_id)
+        used_id = order_id or own_id
+        endpoint = "/{0}/orders/{1}".format(account_id, used_id)
         response = self.send_request(endpoint)
 
         if response.status_code >= 400:
@@ -232,7 +238,7 @@ class OrdersMixin(object):
 
         return response.json()
 
-    def get_pending_orders(self, account_id=""):
+    def get_pending_orders(self, account_id: str = "") -> dict:
         """Get list of all pending orders.
 
         Arguments:
@@ -240,7 +246,7 @@ class OrdersMixin(object):
                 Oanda account ID.
 
         Returns:
-            JSON object with the pending orders details.
+            JSON object (dict) with the pending orders details.
 
         Raises:
             HTTPError:
@@ -256,9 +262,11 @@ class OrdersMixin(object):
 
         return response.json()
 
-    def modify_pending_order(self, order_id=0, own_id="", price=0,
-                             price_bound=0, stoploss=0, trailing_stoploss=0,
-                             takeprofit=0, units=0, account_id=""):
+    def modify_pending_order(self, order_id: int = 0, own_id: str = "",
+                             price: float = 0.0, price_bound: float = 0.0,
+                             stoploss: float = 0.0, trailing_stoploss: float
+                             = 0.0, takeprofit: float = 0.0, units: int = 0,
+                             account_id: str = "") -> Union[bool, str]:
         """Modify values for the specific pending order.
 
         User may modify only such as values 'price', 'stoploss', 'takeprofit'
@@ -271,6 +279,20 @@ class OrdersMixin(object):
                 Oanda intern order ID.
             own_id (str, optional):
                 Custom user order ID.
+            price (float, optinal):
+                Price for waiting orders.
+            price_bound (float, optinal):
+                The worst filled price.
+            stopLoss (float, optinal):
+                Maximal loss.
+            trailing_stoploss (float, optinal):
+                Moving maximal loss.
+            takeprofit (float, optional):
+                Maximal profit.
+            units (int, optinal):
+                Order size.
+            account_id (str, optinal):
+                Oanda account ID.
 
         Returns:
             True if used custom user ID or new Oanda order ID in string if the
@@ -300,12 +322,13 @@ class OrdersMixin(object):
                 order_id, account_id=account_id)["order"]
 
         if own_id:
-            order_id = "@" + own_id
+            own_id = "@" + own_id
 
             old_order_details = self.get_order_details(
                 own_id=own_id, account_id=account_id)["order"]
 
-        endpoint = "/{0}/orders/{1}".format(account_id, order_id)
+        used_id = order_id or own_id
+        endpoint = "/{0}/orders/{1}".format(account_id, used_id)
 
         # Oanda added internal keys which are incompatible with the order
         # structure.
@@ -322,8 +345,6 @@ class OrdersMixin(object):
         # incompatible ...
 
         old_order_details["positionFill"] = "DEFAULT"
-
-        # Update values as user demands.
 
         if price:
             old_order_details["price"] = str(price)
@@ -373,7 +394,8 @@ class OrdersMixin(object):
         else:
             return True
 
-    def cancel_pending_order(self, order_id=0, own_id="", account_id=""):
+    def cancel_pending_order(self, order_id: int = 0, own_id: str = "",
+                             account_id="") -> bool:
         """Cancel pending order for the given order ID.
 
         User may choose if the order details will be obtained by Oanda ID or
@@ -399,12 +421,13 @@ class OrdersMixin(object):
 
         if not order_id and not own_id:
             raise TypeError("Missing argument either for the 'order_id' or "
-                            "'own_id' parameter.")
+                            "'own_id'.")
 
         if own_id:
-            order_id = "@" + own_id
+            own_id = "@" + own_id
 
-        endpoint = "/{0}/orders/{1}/cancel".format(account_id, order_id)
+        used_id = order_id or own_id
+        endpoint = "/{0}/orders/{1}/cancel".format(account_id, used_id)
         response = self.send_request(endpoint, "PUT")
 
         if response.status_code >= 400:

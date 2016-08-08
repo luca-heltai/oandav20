@@ -1,3 +1,5 @@
+from typing import List
+
 INSTRUMENTS = {
     # Bonds
 
@@ -138,23 +140,24 @@ INSTRUMENTS = {
 }
 
 
-class AccountMixin(object):
+class AccountMixin:
     """Methods in the AccountMixin class handles the account endpoints."""
 
-    def get_instruments_details(self, instruments=[], account_id=""):
+    def get_instruments(self, instruments: List[str] = [],
+                        account_id: str = "") -> dict:
         """Get details for 1 or more or all instruments.
 
         If a user won't pass any instrument code(s) to the 'instruments'
         parameter, then will be returned details for all instruments.
 
         Arguments:
-            instruments (list):
+            instruments (list of strings):
                 Code of instrument(s).
             account_id (str):
                 Oanda account ID.
 
         Returns:
-            JSON object with the instrument(s) details.
+            JSON object (dict) with the instrument(s) details.
 
         Raises:
             ValueError:

@@ -1,3 +1,5 @@
+from typing import Any
+
 import requests
 
 from mixins.account import AccountMixin
@@ -31,7 +33,8 @@ class Oanda(AccountMixin, OrdersMixin, TradesMixin, PricingMixin):
             Oanda account ID.
     """
 
-    def __init__(self, environment, access_token, default_id):
+    def __init__(self, environment: str, access_token: str, default_id: str) \
+            -> None:
         """Initialize an instance of class Oanda.
 
         Arguments:
@@ -60,7 +63,8 @@ class Oanda(AccountMixin, OrdersMixin, TradesMixin, PricingMixin):
 
         self.default_id = default_id
 
-    def send_request(self, endpoint, method="GET", **kwargs):
+    def send_request(self, endpoint: str, method: str = "GET", 
+                     **kwargs: Any) -> requests.Response:
         """Send an HTTP request to the Oanda server.
 
         User may also use this method for accessing another endpoints which

@@ -1,14 +1,16 @@
+from typing import List
+
 from .account import INSTRUMENTS
 
 
-class PricingMixin(object):
+class PricingMixin:
     """Methods in the PricingMixin class handles the pricing endpoints."""
 
-    def get_pricing_info(self, instruments):
+    def get_pricing(self, instruments: List[str]) -> dict:
         """Get pricing information for 1 or more instruments.
 
         Arguments:
-            instruments (list):
+            instruments (list of strings):
                 Code of instrument(s).
 
         Note:
@@ -17,7 +19,7 @@ class PricingMixin(object):
             provided and thus an instrument code control is needed.
 
         Returns:
-            JSON object with the pricing information.
+            JSON object (dict) with the pricing information.
 
         Raises:
             HTTPError:
