@@ -345,7 +345,7 @@ class OrdersMixin:
                         "triggerCondition": "TRIGGER_DEFAULT",
                         "type": "MARKET_IF_TOUCHED",
                         "units": "10000"
-                    }, 
+                    },
                     {
                         ...
                     }
@@ -498,7 +498,10 @@ class OrdersMixin:
         else:
             return True
 
-    def update_order_extensions(self):
+    def update_order_extensions(self, order_id: int = 0, own_id: str = "",
+                                new_own_id: str = "", tag: str = "",
+                                comment: str = "", account_id: str = "") \
+            -> bool:
         """Update client extensions for the given order.
 
         User may choose if wants to get the order by Oanda ID or custom ID.
@@ -559,7 +562,7 @@ class OrdersMixin:
         return response.status_code == 200
 
     def cancel_order(self, order_id: int = 0, own_id: str = "",
-                             account_id="") -> bool:
+                     account_id="") -> bool:
         """Cancel pending order for the given order ID.
 
         User may choose if the order details will be obtained by Oanda ID or

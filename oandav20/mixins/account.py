@@ -159,57 +159,57 @@ class AccountMixin:
         Example:
             {
                 "account": {
-                    "NAV": "43650.78835", 
-                    "alias": "My New Account #2", 
-                    "balance": "43650.78835", 
-                    "createdByUserID": <USERID>, 
-                    "createdTime": "2015-08-12T18:21:00.697504698Z", 
-                    "currency": "CHF", 
-                    "hedgingEnabled": false, 
-                    "id": "<ACCOUNT>", 
-                    "lastTransactionID": "6356", 
-                    "marginAvailable": "43650.78835", 
-                    "marginCloseoutMarginUsed": "0.00000", 
-                    "marginCloseoutNAV": "43650.78835", 
-                    "marginCloseoutPercent": "0.00000", 
-                    "marginCloseoutPositionValue": "0.00000", 
-                    "marginCloseoutUnrealizedPL": "0.00000", 
-                    "marginRate": "0.02", 
-                    "marginUsed": "0.00000", 
-                    "openPositionCount": 0, 
-                    "openTradeCount": 0, 
-                    "orders": [], 
-                    "pendingOrderCount": 0, 
-                    "pl": "-56034.41199", 
-                    "positionValue": "0.00000", 
+                    "NAV": "43650.78835",
+                    "alias": "My New Account #2",
+                    "balance": "43650.78835",
+                    "createdByUserID": <USERID>,
+                    "createdTime": "2015-08-12T18:21:00.697504698Z",
+                    "currency": "CHF",
+                    "hedgingEnabled": false,
+                    "id": "<ACCOUNT>",
+                    "lastTransactionID": "6356",
+                    "marginAvailable": "43650.78835",
+                    "marginCloseoutMarginUsed": "0.00000",
+                    "marginCloseoutNAV": "43650.78835",
+                    "marginCloseoutPercent": "0.00000",
+                    "marginCloseoutPositionValue": "0.00000",
+                    "marginCloseoutUnrealizedPL": "0.00000",
+                    "marginRate": "0.02",
+                    "marginUsed": "0.00000",
+                    "openPositionCount": 0,
+                    "openTradeCount": 0,
+                    "orders": [],
+                    "pendingOrderCount": 0,
+                    "pl": "-56034.41199",
+                    "positionValue": "0.00000",
                     "positions": [
                         {
-                            "instrument": "EUR_GBP", 
+                            "instrument": "EUR_GBP",
                             "long": {
-                                "pl": "-21.81721", 
-                                "resettablePL": "-21.81721", 
-                                "units": "0", 
+                                "pl": "-21.81721",
+                                "resettablePL": "-21.81721",
+                                "units": "0",
                                 "unrealizedPL": "0.00000"
-                            }, 
-                            "pl": "-21.81721", 
-                            "resettablePL": "-21.81721", 
+                            },
+                            "pl": "-21.81721",
+                            "resettablePL": "-21.81721",
                             "short": {
-                                "pl": "0.00000", 
-                                "resettablePL": "0.00000", 
-                                "units": "0", 
+                                "pl": "0.00000",
+                                "resettablePL": "0.00000",
+                                "units": "0",
                                 "unrealizedPL": "0.00000"
-                            }, 
+                            },
                             "unrealizedPL": "0.00000"
                         },
                         {
-                            ...        
+                            ...
                         }
-                    ], 
-                    "resettablePL": "-56034.41199", 
-                    "trades": [], 
-                    "unrealizedPL": "0.00000", 
+                    ],
+                    "resettablePL": "-56034.41199",
+                    "trades": [],
+                    "unrealizedPL": "0.00000",
                     "withdrawalLimit": "43650.78835"
-                }, 
+                },
                 "lastTransactionID": "6356"
             }
 
@@ -226,7 +226,7 @@ class AccountMixin:
 
         return response.json()
 
-    def get_account_summary(self):
+    def get_account_summary(self, account_id: str = "") -> dict:
         """Get short variant of account details.
 
         In this option are excluded pendings orders, open trades, closed
@@ -273,7 +273,7 @@ class AccountMixin:
 
         Raises:
             HTTPError:
-                HTTP response status code is 4xx or 5xx.     
+                HTTP response status code is 4xx or 5xx.
         """
         account_id = account_id or self.default_id
         endpoint = "/{}/summary".format(account_id)
@@ -283,7 +283,6 @@ class AccountMixin:
             response.raise_for_status()
 
         return response.json()
-
 
     def get_instruments(self, instruments: List[str] = [],
                         account_id: str = "") -> dict:

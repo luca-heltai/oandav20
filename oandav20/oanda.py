@@ -5,6 +5,7 @@ import requests
 from mixins.account import AccountMixin
 from mixins.orders import OrdersMixin
 from mixins.trades import TradesMixin
+from mixins.positions import PositionsMixin
 from mixins.pricing import PricingMixin
 
 
@@ -26,7 +27,7 @@ class Oanda(AccountMixin, OrdersMixin, TradesMixin, PricingMixin):
     Attributes:
         __base_url (str):
             Prefix for all endpoints.
-        __client (object):
+        client (object):
             Session object with HTTP persistent connection to the Oanda API
             server.
         default_id (str):
@@ -57,13 +58,13 @@ class Oanda(AccountMixin, OrdersMixin, TradesMixin, PricingMixin):
         else:
             raise ValueError("Invalid environment '{}'.".format(environment))
 
-        self.__client = requests.Session()
-        self.__client.headers["Authorization"] = "Bearer " + access_token
-        self.__client.headers["Content-Type"] = "application/json"
+        self.client = requests.Session()
+        self.client.headers["Authorization"] = "Bearer " + access_token
+        self.client.headers["Content-Type"] = "application/json"
 
         self.default_id = default_id
 
-    def send_request(self, endpoint: str, method: str = "GET", 
+    def send_request(self, endpoint: str, method: str = "GET",
                      **kwargs: Any) -> requests.Response:
         """Send an HTTP request to the Oanda server.
 
@@ -84,4 +85,4 @@ class Oanda(AccountMixin, OrdersMixin, TradesMixin, PricingMixin):
         """
         url = self.__base_url + endpoint
 
-        return self.__client.request(method, url, **kwargs)
+        return self.client.request(method, url, **kwargs)
