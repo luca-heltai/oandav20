@@ -68,14 +68,14 @@ class TradesMixin:
 
         return response.json()
 
-    def get_filtered_trades(self, trade_ids: List[str] = [], instrument: str
+    def get_filtered_trades(self, trade_ids: List[int] = [], instrument: str
                             = "", account_id: str = "") -> dict:
         """Get list of filtered open trades.
 
         There are picked only the two filters which I consider as reasonable.
 
         Arguments:
-            trade_ids (list of string, optinal):
+            trade_ids (list of ints, optinal):
                 List of Oanda trade IDs, not custom trade IDs.
             instrument (str, optional):
                 Code of single instrument.
@@ -83,7 +83,7 @@ class TradesMixin:
                 Oanda account ID.
 
         Returns:
-            JSON object (dict) with the filtered trades details.
+            JSON object (dict) with the filtered open trades details.
 
         Example:
             {
@@ -118,8 +118,9 @@ class TradesMixin:
         params = {}
 
         if trade_ids:
-            trade_ids = ",".join(trade_ids)
-            params["ids"] = trade_ids
+            string_ids = [str(id) for id in trade_ids]
+            joined_ids = ",".join(string_ids)
+            params["ids"] = joined_ids
 
         if instrument:
             if instrument in INSTRUMENTS.values():
@@ -176,7 +177,6 @@ class TradesMixin:
         """
         account_id = account_id or self.default_id
         endpoint = "/{}/openTrades".format(account_id)
-
         response = self.send_request(endpoint)
 
         if response.status_code >= 400:
@@ -229,40 +229,36 @@ class TradesMixin:
 
         used_id = trade_id or own_id
         endpoint = "/{0}/orders/{1}".format(account_id, used_id)
-
-        # In this method is different trade structure unlike order in the
-        # OrdersMixin clas.
-
-        body = {}
+        http_body = {}
 
         if stoploss:
-            if stoploss < 0:
+            if stoploss < 0.0:
                 stoploss = 0
 
-            body["stopLoss"] = {
+            http_body["stopLoss"] = {
                 "price": str(stoploss),
                 "timeInForce": "GTC"
             }
 
         if trailing_stoploss:
-            if trailing_stoploss < 0:
+            if trailing_stoploss < 0.0:
                 trailing_stoploss = 0
 
-            body["trailingStoploss"] = {
+            http_body["trailingStoploss"] = {
                 "distance": str(trailing_stoploss),
                 "timeInForce": "GTC"
             }
 
         if takeprofit:
-            if takeprofit < 0:
+            if takeprofit < 0.0:
                 takeprofit = 0
 
-            body["takeProfit"] = {
+            http_body["takeProfit"] = {
                 "price": str(takeprofit),
                 "timeInForce": "GTC"
             }
 
-        response = self.send_request(endpoint, "PUT", json=body)
+        response = self.send_request(endpoint, "PUT", json=http_body)
 
         if response.status_code >= 400:
             response.raise_for_status()
@@ -312,20 +308,20 @@ class TradesMixin:
             own_id = "@" + own_id
 
         used_id = trade_id or own_id
-        endpoint = "/{0}/trades/{1}/close".format(account_id, used_id)
-
-        body = {"clientExtensions": {}}
+        endpoint = "/{0}/trades/{1}/clientExtensions".format(
+            account_id, used_id)
+        http_body = {"clientExtensions": {}}
 
         if new_own_id:
-            body["clientExtensions"]["id"] = new_own_id
+            http_body["clientExtensions"]["id"] = new_own_id
 
         if tag:
-            body["clientExtensions"]["tag"] = tag
+            http_body["clientExtensions"]["tag"] = tag
 
         if comment:
-            body["clientExtensions"]["comment"] = comment
+            http_body["clientExtensions"]["comment"] = comment
 
-        response = self.send_request(endpoint)
+        response = self.send_request(endpoint, "PUT", json=http_body)
 
         if response.status_code >= 400:
             response.raise_for_status()
@@ -372,8 +368,8 @@ class TradesMixin:
         endpoint = "/{0}/trades/{1}/close".format(account_id, used_id)
 
         if units:
-            body = {"units": str(units)}
-            response = self.send_request(endpoint, "PUT", json=body)
+            http_body = {"units": str(units)}
+            response = self.send_request(endpoint, "PUT", json=http_body)
         else:
             response = self.send_request(endpoint, "PUT")
 
@@ -381,3 +377,11 @@ class TradesMixin:
             response.raise_for_status()
 
         return response.status_code == 200
+
+    def close_trades(self):
+        """Close all open trades.
+
+        Todo:
+            - use async
+        """
+        pass
