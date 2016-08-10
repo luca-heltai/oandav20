@@ -143,6 +143,37 @@ INSTRUMENTS = {
 class AccountMixin:
     """Methods in the AccountMixin class handles the account endpoints."""
 
+    def get_available_accounts(self):
+        """Get list of accounts for the current access token.
+
+        Returns:
+            JSON object (dict) with the accounts IDs.
+
+        Example:
+            {
+                "accounts": [
+                    {
+                        "id": "<ACCOUNT ID>",
+                        "tags": []
+                    },
+                    {
+                        ...
+                    }
+                ]
+            }
+
+        Raises:
+            requests.HTTPError:
+                HTTP response status code is 4xx or 5xx.
+        """
+        endpoint = ""
+        response = self.send_request(endpoint)
+
+        if response.status_code >= 400:
+            response.raise_for_status()
+
+        return response.json()
+
     def get_account(self, account_id: str = "") -> dict:
         """Get full account details.
 
@@ -350,12 +381,12 @@ class AccountMixin:
 
         return response.json()
 
-    def configure_account(self, margin: Union[float, int], 
+    def configure_account(self, margin: Union[float, int],
                           account_id: str = "") \
             -> bool:
         """Configure the given trading account.
 
-        By this method is possible only configure margin rate alias minimum 
+        By this method is possible only configure margin rate alias minimum
         required margin per trade. Allowed values are below in the 'Minimum
         margin' column (without the percentage sign).
 
@@ -379,7 +410,7 @@ class AccountMixin:
             requests.HTTPError:
                 HTTP response status code is 4xx or 5xx.
             ValueError:
-                Invalid 
+                Invalid
         """
         account_id = account_id or self.default_id
         endpoint = "/{}/configuration".format(account_id)
@@ -393,8 +424,7 @@ class AccountMixin:
         }
 
         if margin not in margin_rate.keys():
-            raise ValueError("Invalid margin '{} %'.".format(
-                minimum_margin))
+            raise ValueError("Invalid margin '{} %'.".format(margin))
 
         request_body = {"marginRate": str(margin_rate)}
         response = self.send_request(endpoint, "PATCH", json=request_body)
