@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Union
 
 INSTRUMENTS = {
     # Bonds
@@ -150,8 +150,8 @@ class AccountMixin:
         closed positions.
 
         Arguments:
-            account_id (str, optional):
-                Oanda account ID.
+            account_id:
+                Oanda trading account ID, otherwise 'default_id' will be used.
 
         Returns:
             JSON object (dict) with the full account details.
@@ -214,7 +214,7 @@ class AccountMixin:
             }
 
         Raises:
-            HTTPError:
+            requests.HTTPError:
                 HTTP response status code is 4xx or 5xx.
         """
         account_id = account_id or self.default_id
@@ -233,8 +233,8 @@ class AccountMixin:
         positions.
 
         Arguments:
-            account_id (str, optional):
-                Oanda account ID
+            account_id:
+                Oanda trading account ID, otherwise 'default_id' will be used.
 
         Returns:
             JSON object (dict) with the account summary details.
@@ -272,7 +272,7 @@ class AccountMixin:
             }
 
         Raises:
-            HTTPError:
+            requests.HTTPError:
                 HTTP response status code is 4xx or 5xx.
         """
         account_id = account_id or self.default_id
@@ -285,17 +285,18 @@ class AccountMixin:
         return response.json()
 
     def get_instruments(self, instruments: List[str] = [],
-                        account_id: str = "") -> dict:
-        """Get details for 1 or more or all instruments.
+                        account_id: str = "") \
+            -> dict:
+        """Get details for one or more or all tradeable instruments.
 
         If a user won't pass any instrument code(s) to the 'instruments'
         parameter, then will be returned details for all instruments.
 
         Arguments:
-            instruments (list of strings):
+            instruments:
                 Code of instrument(s).
             account_id (str):
-                Oanda account ID.
+                Oanda trading account ID, otherwise 'default_id' will be used.
 
         Returns:
             JSON object (dict) with the instrument(s) details.
@@ -324,7 +325,7 @@ class AccountMixin:
             }
 
         Raises:
-            HTTPError:
+            requests.HTTPError:
                 HTTP response status code is 4xx or 5xx.
             ValueError:
                 Invalid instrument code(s) passed to the 'instruments'
@@ -348,3 +349,57 @@ class AccountMixin:
             response.raise_for_status()
 
         return response.json()
+
+    def configure_account(self, margin: Union[float, int], 
+                          account_id: str = "") \
+            -> bool:
+        """Configure the given trading account.
+
+        By this method is possible only configure margin rate alias minimum 
+        required margin per trade. Allowed values are below in the 'Minimum
+        margin' column (without the percentage sign).
+
+        | Leverage ratio | Minimum margin | Margin rate |
+        | --- | --- | --- |
+        | 100:1 | 1 % | 0.01 |
+        | 50:1 | 2 % | 0.02 |
+        | 40:1 | 2.5 % | 0.025 |
+        | 30:1 | 3.3 % | 0.0333 |
+        | 20:1 | 5 % | 0.05 |
+        | 10:1 | 10 % | 0.1 |
+
+        Arguments:
+            margin:
+                Minimum margin per trade expressed in the percentage.
+
+        Returns:
+            True if the account was configured successfully.
+
+        Raises:
+            requests.HTTPError:
+                HTTP response status code is 4xx or 5xx.
+            ValueError:
+                Invalid 
+        """
+        account_id = account_id or self.default_id
+        endpoint = "/{}/configuration".format(account_id)
+        margin_rate = {
+            1: 0.01,
+            2: 0.02,
+            2.5: 0.025,
+            3.3: 0.0333,
+            5: 0.05,
+            10: 0.1
+        }
+
+        if margin not in margin_rate.keys():
+            raise ValueError("Invalid margin '{} %'.".format(
+                minimum_margin))
+
+        request_body = {"marginRate": str(margin_rate)}
+        response = self.send_request(endpoint, "PATCH", json=request_body)
+
+        if response.status_code >= 400:
+            response.raise_for_status()
+
+        return True

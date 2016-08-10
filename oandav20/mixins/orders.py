@@ -15,7 +15,8 @@ class OrdersMixin:
                      time_in_force: str = "", gtd_time: str = "",
                      stoploss: float = 0.0, trailing_stoploss: float = 0.0,
                      takeprofit: float = 0.0, own_id: str = "", tag: str = "",
-                     comment: str = "", account_id: str = "") -> dict:
+                     comment: str = "", account_id: str = "") \
+            -> Union[bool, str]:
         """Create an order for the given instrument with specified parameters.
 
         If a used didn'ŧ place own ID then he / she must remember ID created by
@@ -61,7 +62,8 @@ class OrdersMixin:
                 Custom user comment for this order.
 
         Returns:
-            True if the order was created as specified.
+            True if the order was created as specified and user used own ID or
+            returns order ID created by Oanda.
 
         Raises:
             HttpError:
