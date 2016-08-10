@@ -9,29 +9,33 @@ from mixins.positions import PositionsMixin
 from mixins.pricing import PricingMixin
 
 
-class Oanda(AccountMixin, OrdersMixin, TradesMixin, PricingMixin):
-    """Oanda is the only (main) class, which should be used by user.
+class Oanda(AccountMixin, OrdersMixin, TradesMixin, PositionsMixin,
+            PricingMixin):
+    """Oanda is the main class responsible for interaction between a client
+    and the Oanda trading server.
 
-    It consist of several inherited mixins which extends funcionality of this
-    class. Each mixin covers thematic endpoints, eg. one for orders handling,
-    another for getting account information etc.
+    It consists of several inherited mixins which extend its funcionality.
+    Each mixin covers an thematic endpoint, for example one for orders
+    handling, another for getting account information etc.
 
-    Oanda allows to users to have 1 or more trading (sub)accounts. For those
-    who manage only 1 may be too explicit to pass every time the account ID
-    to methods for constructing a URL path. Moreover, there are endpoints
-    where passing any account ID would lead to the same results.
+    Oanda allows to users to have one or more trading accounts for different
+    base currency or leverage. For those who manage only one account may be
+    too explicit to pass every time the trading account ID to methods
+    (where required) for constructing a URL path.
 
-    Therefore a 'default_id' attribute will be used for these situations unless
-    the use user provide an different ID to the methods.
+    Moreover, there are endpoints where passing any trading account ID would
+    lead to the same results. Therefore a 'default_id' attribute will be used
+    for these situations unless the use user provides an different ID to the
+    methods.
 
     Attributes:
-        __base_url (str):
-            Prefix for all endpoints.
-        client (object):
+        base_url:
+            Base url alias prefix for all endpoints.
+        client:
             Session object with HTTP persistent connection to the Oanda API
             server.
-        default_id (str):
-            Oanda account ID.
+        default_id:
+            Default Oanda trading account ID.
     """
 
     def __init__(self, environment: str, access_token: str, default_id: str) \
@@ -39,12 +43,12 @@ class Oanda(AccountMixin, OrdersMixin, TradesMixin, PricingMixin):
         """Initialize an instance of class Oanda.
 
         Arguments:
-            environment (str):
-                Accepts only value "DEMO" or "REAL".
-            access_token (str):
+            environment:
+                Trading environment, accepts only value "DEMO" or "REAL".
+            access_token:
                 Access token for user authentication.
-            default_id (str):
-                Oanda account ID.
+            default_id:
+                Default Oanda trading account ID.
 
         Raises:
             ValueError:
@@ -52,37 +56,37 @@ class Oanda(AccountMixin, OrdersMixin, TradesMixin, PricingMixin):
                 parameter.
         """
         if environment == "DEMO":
-            self.__base_url = "https://api-fxpractice.oanda.com/v3/accounts"
+            self.base_url = "https://api-fxpractice.oanda.com/v3/accounts"
         elif environment == "REAL":
-            self.__base_url = "https://api-fxtrade.oanda.com/v3/accounts"
+            self.base_url = "https://api-fxtrade.oanda.com/v3/accounts"
         else:
             raise ValueError("Invalid environment '{}'.".format(environment))
 
         self.client = requests.Session()
         self.client.headers["Authorization"] = "Bearer " + access_token
         self.client.headers["Content-Type"] = "application/json"
-
         self.default_id = default_id
 
     def send_request(self, endpoint: str, method: str = "GET",
-                     **kwargs: Any) -> requests.Response:
-        """Send an HTTP request to the Oanda server.
+                     **kwargs: Any) \
+            -> requests.Response:
+        """Send an HTTP request to the Oanda trading server.
 
         User may also use this method for accessing another endpoints which
         aren't covered in this package.
 
         Arguments:
-            endpoint (str):
-                Suffix of a URL.
-            method (str, optional, default "GET"):
+            endpoint:
+                Suffix for a URL.
+            method:
                 HTTP method written in capital letters.
             **kwargs:
-                Same keywords arguments like for 'request' object from
+                Same keywords arguments like for an 'request' object from a
                 'requests' package.
 
         Returns:
-            HTTP Response object from 'requests' package.
+            HTTP Response object from the 'requests' package.
         """
-        url = self.__base_url + endpoint
+        url = self.base_url + endpoint
 
         return self.client.request(method, url, **kwargs)
