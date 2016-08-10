@@ -143,7 +143,7 @@ INSTRUMENTS = {
 class AccountMixin:
     """Methods in the AccountMixin class handles the account endpoints."""
 
-    def get_available_accounts(self):
+    def get_available_accounts(self) -> dict:
         """Get list of accounts for the current access token.
 
         Returns:
@@ -432,4 +432,4 @@ class AccountMixin:
         if response.status_code >= 400:
             response.raise_for_status()
 
-        return True
+        return response.status_code == 200s
