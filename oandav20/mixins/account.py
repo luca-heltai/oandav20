@@ -432,4 +432,4 @@ class AccountMixin:
         if response.status_code >= 400:
             response.raise_for_status()
 
-        return response.status_code == 200s
+        return response.status_code == 200

@@ -10,13 +10,8 @@ class PricingMixin:
         """Get pricing information for 1 or more instruments.
 
         Arguments:
-            instruments (list of strings):
+            instruments:
                 Code of instrument(s).
-
-        Note:
-            Even if instrument code(s) are invalid, Oanda responds with HTTP
-            status 200 and normal JSON Pricing object, however details won't be
-            provided and thus an instrument code control is needed.
 
         Returns:
             JSON object (dict) with the pricing information.
@@ -78,7 +73,7 @@ class PricingMixin:
             }
 
         Raises:
-            HTTPError:
+            requests.HTTPError:
                 HTTP response status code is 4xx or 5xx.
             ValueError:
                 Invalid instrument code passed to the 'instruments' parameter.
