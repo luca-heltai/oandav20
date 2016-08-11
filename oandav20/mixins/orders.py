@@ -609,6 +609,8 @@ class OrdersMixin:
             True, if the pending order was cancelled.
 
         Raises:
+            requests.HTTPError:
+                HTTP response status code is 4xx or 5xx.
             TypeError:
                 Missing argument either for the 'order_id' or 'own_id'
                 parameter.
@@ -630,6 +632,14 @@ class OrdersMixin:
             response.raise_for_status()
 
         return response.status_code == 200
+
+    def cancel_filtered_orders(self):
+        """Cancel the filtered pending orders.
+
+        Todo:
+            - use async
+        """
+        pass
 
     def cancel_all_orders(self):
         """Cancel all pending orders.
