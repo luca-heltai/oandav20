@@ -426,7 +426,7 @@ class AccountMixin:
         if margin not in margin_rate.keys():
             raise ValueError("Invalid margin '{} %'.".format(margin))
 
-        request_body = {"marginRate": str(margin_rate)}
+        request_body = {"marginRate": str(margin_rate[margin])}
         response = self.send_request(endpoint, "PATCH", json=request_body)
 
         if response.status_code >= 400:
