@@ -2,11 +2,11 @@ from typing import Any
 
 import requests
 
-from mixins.account import AccountMixin
-from mixins.orders import OrdersMixin
-from mixins.trades import TradesMixin
-from mixins.positions import PositionsMixin
-from mixins.pricing import PricingMixin
+from .mixins.account import AccountMixin
+from .mixins.orders import OrdersMixin
+from .mixins.trades import TradesMixin
+from .mixins.positions import PositionsMixin
+from .mixins.pricing import PricingMixin
 
 
 class Oanda(AccountMixin, OrdersMixin, TradesMixin, PositionsMixin,
