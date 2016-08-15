@@ -114,7 +114,7 @@ class OrdersMixin:
                 else:
                     raise ValueError("Invalid TimeInForce code '{}' for the "
                                      "'{}' order.".format(
-                                        time_in_force, order_type))
+                                         time_in_force, order_type))
             else:
                 time_in_force = "FOK"
         elif order_type in ORDER_TYPE[1:]:

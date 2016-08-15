@@ -2,7 +2,7 @@ import unittest
 
 from requests import HTTPError
 
-from oandav20.test import TestCase, ID
+from oandav20.testing import TestCase, ID
 
 
 class TestAccountMethods(TestCase):
