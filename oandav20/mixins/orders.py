@@ -648,7 +648,7 @@ class OrdersMixin:
 
         Raises:
             TypeError:
-                Missing argument either for the 'order_ids' or 'own_ids'
+                Missing argument either for the 'order_ids' or 'own_ids' or
                 'instrument' parameter.
 
         Todo:
@@ -664,15 +664,13 @@ class OrdersMixin:
 
         if pending_orders["orders"]:
             if order_ids:
-                for id in orders_ids:
+                for id in order_ids:
                     self.cancel_order(id, account_id=account_id)
 
                 return
 
             if own_ids:
-                ids_list = [("@" + id) for id in own_ids]
-
-                for id in ids_list:
+                for id in own_ids:
                     self.cancel_order(own_id=id, account_id=account_id)
 
                 return
@@ -684,7 +682,7 @@ class OrdersMixin:
 
                 for key, value in orders_dict:
                     if instrument in orders_dict[key]:
-                        self.cancel_order(key)
+                        self.cancel_order(key, account_id=account_id)
 
                 return
 

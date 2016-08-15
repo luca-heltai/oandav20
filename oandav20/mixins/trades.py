@@ -12,13 +12,13 @@ class TradesMixin:
         """Get details for the given trade.
 
         The trade may be either open or closed. User may choose if wants to
-        update the trade by Oanda ID or custom ID.
+        update the trade by Oanda ID or own ID.
 
         Arguments:
             trade_id:
                 Trade ID provided by Oanda.
             own_id:
-                Custom ID.
+                Own ID.
             account_id:
                 Oanda trading account ID
 
@@ -80,7 +80,7 @@ class TradesMixin:
 
         Arguments:
             trade_ids:
-                List of Oanda trade IDs, not custom trade IDs.
+                List of Oanda trade IDs, not own trade IDs.
             instrument:
                 Code of single instrument.
             account_id:
@@ -139,7 +139,7 @@ class TradesMixin:
 
         return response.json()
 
-    def get_open_trades(self, account_id: str = "") -> dict:
+    def get_all_trades(self, account_id: str = "") -> dict:
         """Get list of all open trades.
 
         Arguments:
@@ -193,7 +193,7 @@ class TradesMixin:
             -> bool:
         """Create / update / remove values for the given order, eg. stoploss.
 
-        User may choose if wants to update the trade by Oanda ID or custom ID.
+        User may choose if wants to update the trade by Oanda ID or its ID.
 
         Note:
             For removing / erasing values you need to pass negative float
@@ -203,7 +203,7 @@ class TradesMixin:
             trade_id:
                 Trade ID provided by Oanda.
             own_id:
-                Custom ID.
+                Own ID.
             stoploss:
                 Stoploss level.
             trailing_stoploss:
@@ -276,18 +276,18 @@ class TradesMixin:
             -> bool:
         """Update client extensions for the given trade.
 
-        User may choose if wants to get the trade by Oanda ID or custom ID.
+        User may choose if wants to get the trade by Oanda ID or its ID.
 
         Note:
-            New custom ID or tag should be used very rarely in my opinion.
+            New own ID or tag should be used very rarely in my opinion.
 
         Arguments:
             trade_id:
                 Trade ID provided by Oanda.
             own_id:
-                Custom ID.
+                Own ID.
             new_own_id:
-                New custom ID which will replace existing custom ID.
+                New own ID which will replace existing own ID.
             tag:
                 Trade tag.
             comment:
@@ -338,13 +338,13 @@ class TradesMixin:
             -> bool:
         """Close fully or partially the given open trade.
 
-        User may choose if wants to close the trade by Oanda ID or custom ID.
+        User may choose if wants to close the trade by Oanda ID or its ID.
 
         Arguments:
             trade_id:
                 Trade ID provided by Oanda.
             own_id:
-                Custom ID.
+                Own ID.
             units:
                 How many units should be closed. If empty then all units will
                 be used.
@@ -384,18 +384,76 @@ class TradesMixin:
 
         return response.status_code == 200
 
-    def close_filtered_trades(self):
+    def close_filtered_trades(self, trade_ids: List[int] = [],
+                              own_ids: List[str] = [], instrument: str = "",
+                              account_id: str = "") \
+            -> None:
         """Close the filtered trades.
 
-        Todo:
-            - use async
-        """
-        pass
+        Arguments:
+            trade_ids:
+                Trade IDs provided by Oanda.
+            own_ids:
+                Own trade IDs.
+            instrument:
+                Instrument code or also single currency code.
 
-    def close_all_trades(self):
-        """Close all the open trades.
+        Raises:
+            TypeError:
+                Missing argument either for the 'trade_ids' or 'own_ids' or
+                'instrument' parameter.
 
         Todo:
-            - use async
+            - refactor to async
         """
-        pass
+        account_id = account_id or self.default_id
+
+        if not trade_ids or not own_ids or not instrument:
+            raise TypeError("Missing argument either for the 'trade_ids' or "
+                            "'own_ids' or 'instrument'.")
+
+        open_trades = self.get_all_trades(account_id)
+
+        if open_trades["trades"]:
+            if trade_ids:
+                for id in trade_ids:
+                    self.close_trade(id, account_id=account_id)
+
+                return
+
+            if own_ids:
+                for id in own_ids:
+                    self.close_trade(own_id=id, account_id=account_id)
+
+                return
+
+            if instrument:
+                trades_dict = \
+                    {int(trade["id"]): trade["instrument"] for trade in
+                     open_trades["trades"]}
+
+                for key, value in trades_dict:
+                    if instrument in trades_dict[key]:
+                        self.close_trade(key, account_id=account_id)
+
+                return
+
+    def close_all_trades(self, account_id: str = "") -> None:
+        """Close all the open trades if there are any.
+
+        Arguments:
+            account_id:
+                Oanda trading account ID.
+
+        Todo:
+            - refactor async
+        """
+        account_id = account_id or self.default_id
+        open_trades = self.get_all_trades(account_id)
+
+        if open_trades["trades"]:
+            trade_ids = \
+                [int(trade["id"]) for trade in open_trades["trades"]]
+
+            for id in trade_ids:
+                self.close_trade(id)
