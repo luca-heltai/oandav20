@@ -54,12 +54,12 @@ class OrdersMixin:
             takeprofit:
                 Takeprofit level.
             own_id:
-                Custom user ID used for this order and if filled, then also for
+                Own ID used for this order and if filled, then also for
                 the open trade.
             tag:
-                Custom user tag.
+                User tag.
             comment:
-                Custom user comment.
+                User comment.
             account_id:
                 Oanda trading account ID.
 
@@ -198,13 +198,13 @@ class OrdersMixin:
         """Get details for the given order ID.
 
         User may choose if the order details will be obtained by Oanda ID or
-        custom ID.
+        its ID.
 
         Arguments:
             order_id:
                 Order ID provided by Oanda.
             own_id:
-                Custom ID.
+                Own ID.
             account_id:
                 Oanda trading account ID.
 
@@ -270,7 +270,7 @@ class OrdersMixin:
 
         Arguments:
             order_ids:
-                List of Oanda order IDs, not custom order IDs.
+                List of Oanda order IDs, not own order IDs.
             instrument:
                 Code of single instrument.
             account_id:
@@ -406,7 +406,7 @@ class OrdersMixin:
             order_id:
                 Order ID provided by Oanda.
             own_id:
-                Custom ID.
+                Own ID.
             price:
                 Price level for waiting orders.
             price_bound:
@@ -426,7 +426,7 @@ class OrdersMixin:
                 Oanda trading account ID.
 
         Returns:
-            True if used custom ID or new Oanda order ID if the old Oanda order
+            True if used own ID or new Oanda order ID if the old Oanda order
             ID was used.
 
         Raises:
@@ -525,18 +525,18 @@ class OrdersMixin:
             -> bool:
         """Update client extensions for the given order.
 
-        User may choose if wants to get the order by Oanda ID or custom ID.
+        User may choose if wants to get the order by Oanda ID or its ID.
 
         Note:
-            New custom ID or tag should be used very rarely in my opinion.
+            New own ID or tag should be used very rarely in my opinion.
 
         Arguments:
             order_id:
                 Order ID provided by Oanda.
             own_id:
-                Custom ID.
+                Own ID.
             new_own_id:
-                New custom ID which will replace existing custom ID.
+                New own ID which will replace existing own ID.
             tag:
                 New tag.
             comment:
@@ -590,13 +590,13 @@ class OrdersMixin:
         """Cancel the given pending order.
 
         User may choose if the order details will be obtained by Oanda ID or
-        custom ID.
+        its ID.
 
         Arguments:
             order_id:
                 Order ID provided by Oanda.
             own_id:
-                Custom ID.
+                Own ID.
             account_id:
                 Oanda trading account ID.
 
@@ -641,14 +641,14 @@ class OrdersMixin:
         Arguments:
             order_ids:
                 Order IDs provided by Oanda.
-            custom_ids:
-                Custom orders IDs (via 'own_id').
+            own_ids:
+                Own orders IDs (via 'own_id').
             instrument:
                 Instrument code or also single currency code.
 
         Raises:
             TypeError:
-                Missing argument either for the 'order_ids' or 'custom_ids'
+                Missing argument either for the 'order_ids' or 'own_ids'
                 'instrument' parameter.
 
         Todo:
@@ -658,7 +658,7 @@ class OrdersMixin:
 
         if not order_ids and not own_ids and not instrument:
             raise TypeError("Missing argument either for the 'order_ids' or "
-                            "'custom_ids' or 'instrument'.")
+                            "'own_ids' or 'instrument'.")
 
         pending_orders = self.get_all_orders(account_id)
 
@@ -667,15 +667,15 @@ class OrdersMixin:
                 for id in orders_ids:
                     self.cancel_order(id, account_id=account_id)
 
-                return None
+                return
 
             if own_ids:
-                custom_ids = [("@" + id) for id in own_ids]
+                ids_list = [("@" + id) for id in own_ids]
 
-                for id in custom_ids:
+                for id in ids_list:
                     self.cancel_order(own_id=id, account_id=account_id)
 
-                return None
+                return
 
             if instrument:
                 orders_dict = \
@@ -686,7 +686,7 @@ class OrdersMixin:
                     if instrument in orders_dict[key]:
                         self.cancel_order(key)
 
-                return None
+                return
 
     def cancel_all_orders(self, account_id: str = "") -> None:
         """Cancel all pending orders if there are any.
