@@ -2,10 +2,6 @@ from typing import List, Union
 
 from .account import INSTRUMENTS
 
-ORDER_TYPE = ["MARKET", "LIMIT", "STOP", "MARKET_IF_TOUCHED"]
-SIDE = ["BUY", "SELL"]
-TIME_IN_FORCE = ["FOK", "IOC", "GTC", "GTD", "GFD"]
-
 
 class OrdersMixin:
     """Methods in the OrdersMixin class handles the orders endpoints."""
@@ -28,8 +24,8 @@ class OrdersMixin:
 
         Arguments:
             order_type:
-                Type of order, accepting only value "MARKET", "LIMIT", "STOP"
-                or "MARKET_IF_TOUCHED".
+                Type of order, accepting only value "MARKET", "LIMIT" or
+                "STOP".
             instrument:
                 Code of instrument.
             side:
@@ -37,10 +33,10 @@ class OrdersMixin:
             units:
                 Size of order.
             price:
-                Price level for orders "LIMIT", "STOP" and "MARKET_IF_TOUCHED".
+                Price level for orders "LIMIT" and "STOP".
             price_bound:
-                The worse market price that may be filled, goes only for orders
-                "STOP" and "MARKET_IF_TOUCHED".
+                The worse market price that may be filled, goes only for "STOP"
+                order.
             time_in_force:
                 How long should the order remain pending. Accepting only codes
                 "FOK" or "IOC" for the "MARKET" order, for the rest "GTC" or
@@ -76,7 +72,7 @@ class OrdersMixin:
                 HTTP response status code is 4xx or 5xx.
             TypeError:
                 Argument for the 'price' parameter is required, if the order
-                type is either "LIMIT" or "STOP" or "MARKET_IF_TOUCHED".
+                type is either "LIMIT" or "STOP".
             ValueError:
                 1. Invalid order type passed to the 'order_type' parameter.
                 2. Invalid instrument code passed to the 'instrument'
@@ -89,14 +85,14 @@ class OrdersMixin:
         account_id = account_id or self.default_id
         endpoint = "/{}/orders".format(account_id)
 
-        if order_type not in ORDER_TYPE:
+        if order_type not in ["MARKET", "LIMIT", "STOP"]:
             raise ValueError("Invalid order type '{}'.".format(order_type))
 
         if instrument not in INSTRUMENTS.values():
             raise ValueError("Invalid instrument code '{}'.".format(
                 instrument))
 
-        if side not in SIDE:
+        if side not in ["BUY", "SELL"]:
             raise ValueError("Invalid side '{}'.".format(side))
 
         if not units > 0:
@@ -109,7 +105,7 @@ class OrdersMixin:
 
         if order_type == "MARKET":
             if time_in_force:
-                if time_in_force in TIME_IN_FORCE[:2]:
+                if time_in_force in ["FOK", "IOC"]:
                     time_in_force = time_in_force
                 else:
                     raise ValueError("Invalid TimeInForce code '{}' for the "
@@ -117,9 +113,9 @@ class OrdersMixin:
                                          time_in_force, order_type))
             else:
                 time_in_force = "FOK"
-        elif order_type in ORDER_TYPE[1:]:
+        elif order_type in ["LIMT", "STOP"]:
             if time_in_force:
-                if time_in_force in TIME_IN_FORCE[2:]:
+                if time_in_force in ["GTC", "GTD", "GFD"]:
                     time_in_force = time_in_force
                 else:
                     raise ValueError("Invalid TimeInForce code '{}' for the "
@@ -234,7 +230,7 @@ class OrdersMixin:
                     "state": "PENDING",
                     "timeInForce": "GTC",
                     "triggerCondition": "TRIGGER_DEFAULT",
-                    "type": "MARKET_IF_TOUCHED",
+                    "type": "STOP",
                     "units": "10000"
                 }
             }
@@ -303,7 +299,7 @@ class OrdersMixin:
                         "state": "PENDING",
                         "timeInForce": "GTC",
                         "triggerCondition": "TRIGGER_DEFAULT",
-                        "type": "MARKET_IF_TOUCHED",
+                        "type": "STOP",
                         "units": "10000"
                     },
                     {
@@ -370,7 +366,7 @@ class OrdersMixin:
                         "state": "PENDING",
                         "timeInForce": "GTC",
                         "triggerCondition": "TRIGGER_DEFAULT",
-                        "type": "MARKET_IF_TOUCHED",
+                        "type": "STOP",
                         "units": "10000"
                     },
                     {
@@ -401,7 +397,7 @@ class OrdersMixin:
             -> Union[bool, str]:
         """Update values for the specific pending order.
 
-        User may update only such as values 'price', 'stoploss', 'takeprofit'
+        User may update only values such as 'price', 'stoploss', 'takeprofit'
         etc., not change instrument or even order type / side. For these
         situations must close the pending order himself / herself and create
         new one.
@@ -414,8 +410,8 @@ class OrdersMixin:
             price:
                 Price level for waiting orders.
             price_bound:
-                The worse market price that may be filled, goes only for order
-                "MARKET_IF_TOUCHED".
+                The worse market price that may be filled, goes only for "STOP"
+                order.
             stopLoss:
                 Stoploss level.
             trailing_stoploss:
@@ -478,8 +474,7 @@ class OrdersMixin:
         if price:
             old_order_details["price"] = str(price)
 
-        if price_bound and old_order_details["order"]["type"] == \
-                "MARKET_IF_TOUCHED":
+        if price_bound and old_order_details["order"]["type"] == "STOP":
             old_order_details["priceBound"] = str(price_bound)
 
         if stoploss:
@@ -569,8 +564,8 @@ class OrdersMixin:
             own_id = "@" + own_id
 
         used_id = order_id or own_id
-        endpoint = "/{0}/orders/{1}/clientExtensions".format(
-            account_id, used_id)
+        endpoint = \
+            "/{0}/orders/{1}/clientExtensions".format(account_id, used_id)
         request_body = {"clientExtensions": {}}
 
         if new_own_id:
@@ -633,18 +628,82 @@ class OrdersMixin:
 
         return response.status_code == 200
 
-    def cancel_filtered_orders(self):
-        """Cancel the filtered pending orders.
+    def cancel_filtered_orders(self, order_ids: List[int] = [],
+                               own_ids: List[str] = [], instrument: str = "",
+                               account_id: str = "") \
+            -> None:
+        """Cancel the filtered pending orders if there are any.
+
+        This method is very useful for situations where is important to
+        cancel all pending orders which relate to USD currency before news are
+        released.
+
+        Arguments:
+            order_ids:
+                Order IDs provided by Oanda.
+            custom_ids:
+                Custom orders IDs (via 'own_id').
+            instrument:
+                Instrument code or also single currency code.
+
+        Raises:
+            TypeError:
+                Missing argument either for the 'order_ids' or 'custom_ids'
+                'instrument' parameter.
 
         Todo:
-            - use async
+            - refactor to async
         """
-        pass
+        account_id = account_id or self.account_id
 
-    def cancel_all_orders(self):
-        """Cancel all pending orders.
+        if not order_ids and not own_ids and not instrument:
+            raise TypeError("Missing argument either for the 'order_ids' or "
+                            "'custom_ids' or 'instrument'.")
+
+        pending_orders = self.get_all_orders(account_id)
+
+        if pending_orders["orders"]:
+            if order_ids:
+                for id in orders_ids:
+                    self.cancel_order(id, account_id=account_id)
+
+                return None
+
+            if own_ids:
+                custom_ids = [("@" + id) for id in own_ids]
+
+                for id in custom_ids:
+                    self.cancel_order(own_id=id, account_id=account_id)
+
+                return None
+
+            if instrument:
+                orders_dict = \
+                    {int(order["id"]): order["instrument"] for order in
+                     pending_orders["orders"]}
+
+                for key, value in orders_dict:
+                    if instrument in orders_dict[key]:
+                        self.cancel_order(key)
+
+                return None
+
+    def cancel_all_orders(self, account_id: str = "") -> None:
+        """Cancel all pending orders if there are any.
+
+        Arguments:
+            account_id:
+                Oanda trading account ID.
 
         Todo:
-            - use async
+            - refactor to async
         """
-        pass
+        account_id = account_id or self.default_id
+        pending_orders = self.get_all_orders(account_id)
+
+        if pending_orders["orders"]:
+            orders_ids = \
+                [int(order["id"]) for order in pending_orders["orders"]]
+
+            for id in orders_ids:
+                self.cancel_order(id, account_id=account_id)
