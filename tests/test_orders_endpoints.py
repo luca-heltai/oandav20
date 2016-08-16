@@ -1,7 +1,5 @@
 import unittest
 
-from requests import HTTPError
-
 from oandav20.testing import TestCase
 
 
@@ -9,20 +7,20 @@ class TestOrdersMethods(TestCase):
     """Tests for the OrdersMixin class."""
 
     def test_create_market_order(self):
-        """Testing market order for the 'create_order' method."""
+        """Test market order for the 'create_order' method."""
         response = self.oanda.create_order("MARKET", "AUD_USD", "BUY", 1)
 
         self.assertTrue(response)
 
     def test_create_limit_order(self):
-        """Testing limit order for the 'create_order' method."""
+        """Test limit order for the 'create_order' method."""
         response = self.oanda.create_order("LIMIT", "AUD_USD", "SELL", 1,
                                            price=2.0, stoploss=2.1,
                                            takeprofit=1.9)
         self.assertTrue(response)
 
     def test_create_stop_order(self):
-        """Testing stop order for the 'create_order' method."""
+        """Test stop order for the 'create_order' method."""
         with open("used_own_ids.txt") as f:
             last_id = f.read().split("\n")[-2]  # [-1] is blank string
 
@@ -37,8 +35,8 @@ class TestOrdersMethods(TestCase):
         self.assertTrue(response)
 
     def test_create_invalid_orders(self):
-        """Testing invalid orders for raising all errors except HTTPError
-        inside the 'create_order' method."""
+        """Test invalid orders for raising all errors except HTTPError inside
+        the 'create_order' method."""
         with self.assertRaises(ValueError):
             self.oanda.create_order("foo", "AUD_USD", "BUY", 1)
 
@@ -59,7 +57,7 @@ class TestOrdersMethods(TestCase):
             self.oanda.create_order("LIMIT", "AUD_USD", "BUY", 1)
 
     def test_get_order_by_oanda_id(self):
-        """Testing getting single order details by Oanda ID in the 'get_order'
+        """Test getting single order details by Oanda ID in the 'get_order'
         method.
 
         The same behaviour would be for any method working with Oanda order /
@@ -69,7 +67,7 @@ class TestOrdersMethods(TestCase):
         self.assertEqual(str(5), response["order"]["id"])
 
     def test_get_order_by_own_id(self):
-        """Testing getting single order details by own ID in the 'get_order'
+        """Test getting single order details by own ID in the 'get_order'
         method."""
         response = self.oanda.get_order(own_id="AUD_USD_1")
 
@@ -77,7 +75,7 @@ class TestOrdersMethods(TestCase):
             "AUD_USD_1", response["order"]["clientExtensions"]["id"])
 
     def test_missing_argument_for_get_order(self):
-        """Testing missing argument for 'order_id' and 'own_id' in the
+        """Test missing argument for 'order_id' and 'own_id' in the
         'get_order' method.
 
         The same behaviour would be for any method working with Oanda order /
@@ -86,7 +84,7 @@ class TestOrdersMethods(TestCase):
             self.oanda.get_order()
 
     def test_get_filtered_orders(self):
-        """Testing the 'get_filtered_orders' method."""
+        """Test the 'get_filtered_orders' method."""
         self.oanda.create_order("LIMIT", "EUR_USD", "BUY", 1, price=0.1)
         self.oanda.create_order("STOP", "EUR_USD", "BUY", 1, price=2.0)
         response = self.oanda.get_filtered_orders("EUR_USD")
@@ -94,13 +92,13 @@ class TestOrdersMethods(TestCase):
         self.assertEqual(2, len(response["orders"]))
 
     def test_get_all_orders(self):
-        """Testing the 'get_all_orders' method."""
+        """Test the 'get_all_orders' method."""
         response = self.oanda.get_all_orders()
 
         self.assertGreaterEqual(len(response["orders"]), 0)
 
     def test_update_order(self):
-        """Testing the 'update_order' method."""
+        """Test the 'update_order' method."""
         order_id = self.oanda.create_order("LIMIT", "GBP_USD", "BUY", 1,
                                            price=0.1)
         response = self.oanda.update_order(order_id, price=0.11, stoploss=0.9,
@@ -108,7 +106,7 @@ class TestOrdersMethods(TestCase):
         self.assertTrue(response)
 
     def test_update_order_extensions(self):
-        """Testing the 'update_order_extensions' method."""
+        """Test the 'update_order_extensions' method."""
         with open("used_own_ids.txt") as f:
             last_id = f.read().split("\n")[-2]  # [-1] is blank string
 
@@ -121,14 +119,14 @@ class TestOrdersMethods(TestCase):
         self.assertTrue(response)
 
     def test_cancel_order(self):
-        """Testing the 'cancel_order' method."""
+        """Test the 'cancel_order' method."""
         order_id = self.oanda.create_order("LIMIT", "NZD_USD", "BUY", 1, 0.1)
         response = self.oanda.cancel_order(order_id)
 
         self.assertTrue(response)
 
     def test_cancel_filtered_orders(self):
-        """Testing the 'cancel_filtered_orders' method."""
+        """Test the 'cancel_filtered_orders' method."""
         self.oanda.create_order("LIMIT", "USD_CAD", "SELL", 1, price=2.0)
         self.oanda.create_order("STOP", "USD_CAD", "BUY", 1, price=2.0)
         self.oanda.cancel_filtered_orders(instrument="USD")
@@ -137,7 +135,7 @@ class TestOrdersMethods(TestCase):
         self.assertFalse(response["orders"])
 
     def test_cancel_all_orders(self):
-        """Testing the 'cancel_all_orders' method."""
+        """Test the 'cancel_all_orders' method."""
         self.oanda.create_order("LIMIT", "USD_JPY", "BUY", 1, price=1.0)
         self.oanda.create_order("STOP", "USD_JPY", "SELL", 1, price=1.0)
         self.oanda.cancel_all_orders()
