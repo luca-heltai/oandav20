@@ -8,8 +8,7 @@ class OrdersMixin:
 
     def create_order(self, order_type: str, instrument: str, side: str,
                      units: int, price: float = 0.0, price_bound: float = 0.0,
-                     time_in_force: str = "", gtd_time: str = "",
-                     stoploss: float = 0.0, trailing_stoploss: float = 0.0,
+                     time_in_force: str = "", stoploss: float = 0.0,
                      takeprofit: float = 0.0, own_id: str = "", tag: str = "",
                      comment: str = "", account_id: str = "") \
             -> Union[bool, str]:
@@ -40,17 +39,10 @@ class OrdersMixin:
             time_in_force:
                 How long should the order remain pending. Accepting only codes
                 "FOK" or "IOC" for the "MARKET" order, for the rest "GTC" or
-                "GTD" or "GFD" codes. "FOK" is default for the "MARKET" type
-                and "GTC" for the waiting types.
-            gtd_time:
-                String represention of DateTime object in RFC 3339 format for
-                orders with value "GTD" in the 'time_in_force'.
+                "GFD" codes. "FOK" is default for the "MARKET" type and "GTC"
+                for the waiting types.
             stoploss:
                 Stoploss level.
-            trailing_stoploss:
-                Trailing stopllos level, Oanda itself calculcate the
-                difference in pips between this trailing stoploss level and
-                triggered price.
             takeprofit:
                 Takeprofit level.
             own_id:
@@ -113,9 +105,9 @@ class OrdersMixin:
                                          time_in_force, order_type))
             else:
                 time_in_force = "FOK"
-        elif order_type in ["LIMT", "STOP"]:
+        elif order_type in ["LIMIT", "STOP"]:
             if time_in_force:
-                if time_in_force in ["GTC", "GTD", "GFD"]:
+                if time_in_force in ["GTC", "GFD"]:
                     time_in_force = time_in_force
                 else:
                     raise ValueError("Invalid TimeInForce code '{}' for the "
@@ -153,24 +145,15 @@ class OrdersMixin:
         # variable if they are empty, otherwise Oanda raises error messages
         # for them.
 
-        if gtd_time and time_in_force == "GTD":
-            request_body["order"]["gtdTime"] = gtd_time
-
-        if price:
+        if price and order_type in ["LIMIT", "STOP"]:
             request_body["order"]["price"] = str(price)
 
-        if price_bound:
+        if price_bound and order_type in ["MARKET", "STOP"]:
             request_body["order"]["priceBound"] = str(price_bound)
 
         if stoploss:
             request_body["order"]["stopLossOnFill"] = {
                 "price": str(stoploss),
-                "timeInForce": "GTC"
-            }
-
-        if trailing_stoploss:
-            request_body["order"]["trailingStopLossOnFill"] = {
-                "distance": str(trailing_stoploss),
                 "timeInForce": "GTC"
             }
 
@@ -388,9 +371,8 @@ class OrdersMixin:
 
     def update_order(self, order_id: int = 0, own_id: str = "",
                      price: float = 0.0, price_bound: float = 0.0,
-                     stoploss: float = 0.0, trailing_stoploss: float = 0.0,
-                     takeprofit: float = 0.0, units: int = 0,
-                     account_id: str = "") \
+                     stoploss: float = 0.0, takeprofit: float = 0.0,
+                     units: int = 0, account_id: str = "") \
             -> Union[bool, str]:
         """Update values for the specific pending order.
 
@@ -411,10 +393,6 @@ class OrdersMixin:
                 order.
             stopLoss:
                 Stoploss level.
-            trailing_stoploss:
-                Trailing stopllos level, Oanda itself calculcate the
-                difference in pips between this trailing stoploss level and
-                triggered price.
             takeprofit:
                 Maximal profit.
             units:
@@ -480,16 +458,6 @@ class OrdersMixin:
             except KeyError:
                 old_order_details["stopLossOnFill"] = {
                     "price": str(stoploss),
-                    "timeInForce": "GTC"
-                }
-
-        if trailing_stoploss:
-            try:
-                old_order_details["trailingStopLossOnFill"]["distance"] = \
-                    str(trailing_stoploss)
-            except KeyError:
-                old_order_details["trailingStopLossOnFill"] = {
-                    "distance": str(trailing_stoploss),
                     "timeInForce": "GTC"
                 }
 

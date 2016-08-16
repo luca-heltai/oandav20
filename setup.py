@@ -9,7 +9,7 @@ with open("README.md", encoding="UTF-8") as f:
 
 setup(
     name="oandav20",
-    version="1.0.0",
+    version="0.1.0",
     description="Unofficial Oanda v20 REST API wrapper.",
     long_description=long_description,
     author="Nait Aul",
@@ -24,7 +24,7 @@ setup(
         "code-style": "flake8"
     },
     classifiers=[
-        "Development Status :: 5 - Production/Stable",
+        "Development Status :: 4 - Beta",
         "Intended Audience :: Financial and Insurance Industry",
         "License :: OSI Approved :: MIT License",
         "Natural Language :: English",

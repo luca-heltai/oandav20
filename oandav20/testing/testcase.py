@@ -16,7 +16,9 @@ class TestCase(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        """Close all pending orders, open trades if any exist and close the
+        """Close all open trades and pending orders if any exist and close the
         HTTP session connection.
         """
+        cls.oanda.close_all_trades()
+        cls.oanda.cancel_all_orders()
         cls.oanda.client.close()

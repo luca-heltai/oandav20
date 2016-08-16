@@ -188,8 +188,8 @@ class TradesMixin:
         return response.json()
 
     def update_trade(self, trade_id: int = 0, own_id: str = "",
-                     stoploss: float = 0.0, trailing_stoploss: float = 0.0,
-                     takeprofit: float = 0.0, account_id: str = "") \
+                     stoploss: float = 0.0, takeprofit: float = 0.0,
+                     account_id: str = "") \
             -> bool:
         """Create / update / remove values for the given order, eg. stoploss.
 
@@ -206,8 +206,6 @@ class TradesMixin:
                 Own ID.
             stoploss:
                 Stoploss level.
-            trailing_stoploss:
-                Trailing stoploss level.
             takeprofit:
                 Takeprofit level.
             account_id:
@@ -242,15 +240,6 @@ class TradesMixin:
 
             request_body["stopLoss"] = {
                 "price": str(stoploss),
-                "timeInForce": "GTC"
-            }
-
-        if trailing_stoploss:
-            if trailing_stoploss < 0.0:
-                trailing_stoploss = 0
-
-            request_body["trailingStoploss"] = {
-                "distance": str(trailing_stoploss),
                 "timeInForce": "GTC"
             }
 
