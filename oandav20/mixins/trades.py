@@ -421,7 +421,7 @@ class TradesMixin:
                     {int(trade["id"]): trade["instrument"] for trade in
                      open_trades["trades"]}
 
-                for key, value in trades_dict:
+                for key, value in trades_dict.items():
                     if instrument in trades_dict[key]:
                         self.close_trade(key, account_id=account_id)
 

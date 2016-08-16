@@ -9,7 +9,7 @@ class TestAccountMethods(TestCase):
     """Tests for the AccountMixin class."""
 
     def tearDown(self):
-        """Configure back the margin rate to 0.01"""
+        """Configure the margin rate back to 0.01"""
         self.oanda.configure_account(1)
 
     def test_available_accounts(self):

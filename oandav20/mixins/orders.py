@@ -241,17 +241,11 @@ class OrdersMixin:
 
         return response.json()
 
-    def get_filtered_orders(self, order_ids: List[int] = [],
-                            instrument: str = "", account_id: str = "") \
+    def get_filtered_orders(self, instrument: str, account_id: str = "") \
             -> dict:
-        """Get list of filtered pending orders.
-
-        There are picked only the two filters (see parameters) which I
-        consider as reasonable.
+        """Get list of filtered pending orders by instrument.
 
         Arguments:
-            order_ids:
-                List of Oanda order IDs, not own order IDs.
             instrument:
                 Code of single instrument.
             account_id:
@@ -297,18 +291,12 @@ class OrdersMixin:
         """
         account_id = account_id or self.default_id
         endpoint = "/{}/orders".format(account_id)
-        url_params = {}
 
-        if order_ids:
-            joined_ids = ",".join([str(id) for id in order_ids])
-            url_params["ids"] = joined_ids
-
-        if instrument:
-            if instrument in INSTRUMENTS:
-                url_params["instrument"] = instrument
-            else:
-                raise ValueError("Invalid instrument code {}.".format(
-                    instrument))
+        if instrument in INSTRUMENTS.values():
+            url_params = {"instrument": instrument}
+        else:
+            raise ValueError("Invalid instrument code {}.".format(
+                instrument))
 
         response = self.send_request(endpoint, params=url_params)
 
@@ -391,7 +379,7 @@ class OrdersMixin:
             price_bound:
                 The worse market price that may be filled, goes only for "STOP"
                 order.
-            stopLoss:
+            stoploss:
                 Stoploss level.
             takeprofit:
                 Maximal profit.
@@ -419,12 +407,12 @@ class OrdersMixin:
 
         if order_id:
             used_oanda_id = True
-            old_order_details = self.get_order_details(
+            old_order_details = self.get_order(
                 order_id, account_id=account_id)["order"]
 
         if own_id:
             own_id = "@" + own_id
-            old_order_details = self.get_order_details(
+            old_order_details = self.get_order(
                 own_id=own_id, account_id=account_id)["order"]
 
         used_id = order_id or own_id
@@ -463,7 +451,8 @@ class OrdersMixin:
 
         if takeprofit:
             try:
-                old_order_details["takeProfitOnFill"]["price"] = str(stoploss)
+                old_order_details["takeProfitOnFill"]["price"] = \
+                    str(takeprofit)
             except KeyError:
                 old_order_details["takeProfitOnFill"] = {
                     "price": str(takeprofit),
@@ -619,7 +608,7 @@ class OrdersMixin:
         Todo:
             - refactor to async
         """
-        account_id = account_id or self.account_id
+        account_id = account_id or self.default_id
 
         if not order_ids and not own_ids and not instrument:
             raise TypeError("Missing argument either for the 'order_ids' or "
@@ -645,7 +634,7 @@ class OrdersMixin:
                     {int(order["id"]): order["instrument"] for order in
                      pending_orders["orders"]}
 
-                for key, value in orders_dict:
+                for key, value in orders_dict.items():
                     if instrument in orders_dict[key]:
                         self.cancel_order(key, account_id=account_id)
 
