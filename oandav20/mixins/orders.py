@@ -98,7 +98,7 @@ class OrdersMixin:
         if not units > 0:
             raise ValueError("Invalid size of units '{}'.".format(units))
 
-        # Units have to be negative for the "SELL" order.
+        # Units must be negative for the "SELL" order.
 
         if side == "SELL":
             units = units * -1
@@ -133,8 +133,6 @@ class OrdersMixin:
 
         request_body = {
             "order": {
-                # Mandatory keys for all order types.
-
                 "instrument": instrument,
                 "positionFill": "DEFAULT",
                 "timeInForce": time_in_force,
@@ -381,7 +379,6 @@ class OrdersMixin:
         """
         account_id = account_id or self.default_id
         endpoint = "/{}/pendingOrders".format(account_id)
-
         response = self.send_request(endpoint)
 
         if response.status_code >= 400:

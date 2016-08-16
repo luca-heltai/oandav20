@@ -414,6 +414,7 @@ class AccountMixin:
         """
         account_id = account_id or self.default_id
         endpoint = "/{}/configuration".format(account_id)
+
         margin_rate = {
             1: 0.01,
             2: 0.02,

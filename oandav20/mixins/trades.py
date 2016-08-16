@@ -313,8 +313,8 @@ class TradesMixin:
             own_id = "@" + own_id
 
         used_id = trade_id or own_id
-        endpoint = "/{0}/trades/{1}/clientExtensions".format(
-            account_id, used_id)
+        endpoint = \
+            "/{0}/trades/{1}/clientExtensions".format(account_id, used_id)
         request_body = {"clientExtensions": {}}
 
         if new_own_id:
@@ -374,8 +374,8 @@ class TradesMixin:
         endpoint = "/{0}/trades/{1}/close".format(account_id, used_id)
 
         if units:
-            http_body = {"units": str(units)}
-            response = self.send_request(endpoint, "PUT", json=http_body)
+            request_body = {"units": str(units)}
+            response = self.send_request(endpoint, "PUT", json=request_body)
         else:
             response = self.send_request(endpoint, "PUT")
 

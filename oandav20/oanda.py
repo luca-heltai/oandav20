@@ -65,6 +65,7 @@ class Oanda(AccountMixin, OrdersMixin, TradesMixin, PositionsMixin,
         self.client = requests.Session()
         self.client.headers["Authorization"] = "Bearer " + access_token
         self.client.headers["Content-Type"] = "application/json"
+
         self.default_id = default_id
 
     def send_request(self, endpoint: str, method: str = "GET",

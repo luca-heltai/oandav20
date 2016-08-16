@@ -8,6 +8,10 @@ from oandav20.testing import TestCase, ID
 class TestAccountMethods(TestCase):
     """Tests for the AccountMixin class."""
 
+    def tearDown(self):
+        """Configure back the margin rate to 0.01"""
+        self.oanda.configure_account(1)
+
     def test_available_accounts(self):
         """Testing the 'get_available_accounts' method."""
         response = self.oanda.get_available_accounts()
@@ -82,11 +86,7 @@ class TestAccountMethods(TestCase):
         """Testing invalid margin rate passed to the 'configure_account'
         method."""
         with self.assertRaises(ValueError):
-            response = self.oanda.configure_account("foo")
-
-    def tearDown(self):
-        """Configure back the margin rate to 0.01"""
-        self.oanda.configure_account(1)
+            self.oanda.configure_account("foo")
 
 
 if __name__ == "__main__":
