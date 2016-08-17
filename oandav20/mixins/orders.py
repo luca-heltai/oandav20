@@ -1,4 +1,4 @@
-from typing import List, Union
+from typing import Any, List, Union
 
 from .account import INSTRUMENTS
 
@@ -178,13 +178,49 @@ class OrdersMixin:
         else:
             return response.status_code == 201
 
-    def create_market_order(self, *args, **kwargs):
+    def create_market_order(self, *args: Any, **kwargs: Any) \
+            -> Union[bool, str]:
+        """Alias for the 'create_order' with first argument "MARKET".
+
+        Arguments:
+            args:
+                Same args like for the 'create_order'
+            kwargs:
+                Same kwargs like for the 'create_order'
+
+        Returns:
+            Call the 'create_order' method with first argument "MARKET".
+        """
         return self.create_order("MARKET", *args, **kwargs)
 
-    def create_limit_order(self, *args, **kwargs):
+    def create_limit_order(self, *args: Any, **kwargs: Any) \
+            -> Union[bool, str]:
+        """Alias for the 'create_order' with first argument "LIMIT".
+
+        Arguments:
+            args:
+                Same args like for the 'create_order'
+            kwargs:
+                Same kwargs like for the 'create_order'
+
+        Returns:
+            Call the 'create_order' method with first argument "LIMIT".
+        """
         return self.create_order("LIMIT", *args, **kwargs)
 
-    def create_stop_order(self, *args, **kwargs):
+    def create_stop_order(self, *args: Any, **kwargs: Any) \
+            -> Union[bool, str]:
+        """Alias for the 'create_order' with first argument "STOP".
+
+        Arguments:
+            args:
+                Same args like for the 'create_order'
+            kwargs:
+                Same kwargs like for the 'create_order'
+
+        Returns:
+            Call the 'create_order' method with first argument "STOP".
+        """
         return self.create_order("STOP", *args, **kwargs)
 
     def get_order(self, order_id: int = 0, own_id: str = "",
@@ -249,69 +285,6 @@ class OrdersMixin:
         used_id = order_id or own_id
         endpoint = "/{0}/orders/{1}".format(account_id, used_id)
         response = self.send_request(endpoint)
-
-        if response.status_code >= 400:
-            response.raise_for_status()
-
-        return response.json()
-
-    def get_filtered_orders(self, instrument: str, account_id: str = "") \
-            -> dict:
-        """Get list of filtered pending orders by instrument.
-
-        Arguments:
-            instrument:
-                Code of single instrument.
-            account_id:
-                Oanda trading account ID.
-
-        Returns:
-            JSON object (dict) with the filtered pending orders details.
-
-        Example:
-            {
-                "lastTransactionID": "6375",
-                "orders": [
-                    {
-                        "clientExtensions": {
-                            "comment": "New idea for trading",
-                            "id": "my_order_100",
-                            "tag": "strategy_9"
-                        },
-                        "createTime": "2016-06-22T18:41:29.294265338Z",
-                        "id": "6375",
-                        "instrument": "EUR_CAD",
-                        "partialFill": "DEFAULT_FILL",
-                        "positionFill": "POSITION_DEFAULT",
-                        "price": "1.30000",
-                        "replacesOrderID": "6373",
-                        "state": "PENDING",
-                        "timeInForce": "GTC",
-                        "triggerCondition": "TRIGGER_DEFAULT",
-                        "type": "STOP",
-                        "units": "10000"
-                    },
-                    {
-                        ...
-                    }
-                ]
-            }
-
-        Raises:
-            requests.HTTPError:
-                HTTP response status code is 4xx or 5xx.
-            ValueError:
-                Invalid instrument code passed to the 'instrument' parameter.
-        """
-        account_id = account_id or self.default_id
-        endpoint = "/{}/orders".format(account_id)
-
-        if instrument in INSTRUMENTS.values():
-            url_params = {"instrument": instrument}
-        else:
-            raise ValueError("Invalid instrument code {}.".format(instrument))
-
-        response = self.send_request(endpoint, params=url_params)
 
         if response.status_code >= 400:
             response.raise_for_status()
