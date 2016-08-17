@@ -27,6 +27,7 @@ class TestOrderMixin(TestCase):
     """
 
     def tearDown(self):
+        """Add new ID to the file below for future uses."""
         with open("used_own_ids.txt", "a") as f:
             f.write(str(int(self.last_own_id) + 1) + "\n")
 
@@ -168,7 +169,7 @@ class TestOrderMixin(TestCase):
 
         pending_orders = self.oanda.get_all_orders()
         pending_orders_own_ids_list = \
-            [order["clientExtensions"]["id"] for order in \
+            [order["clientExtensions"]["id"] for order in
              pending_orders["orders"]]
         assert own_id_1 not in pending_orders_own_ids_list
         assert own_id_2 not in pending_orders_own_ids_list
@@ -181,7 +182,7 @@ class TestOrderMixin(TestCase):
     def test_cancel_all_orders_method(self):
         self.oanda.create_limit_order("EUR_SGD", "BUY", 1, price=0.1)
         self.oanda.cancel_all_orders()
-        
+
         pending_orders = self.oanda.get_all_orders()
         assert not len(pending_orders["orders"])
 

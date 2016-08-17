@@ -28,6 +28,7 @@ class TestTradesMixin(TestCase):
     """
 
     def tearDown(self):
+        """Add new ID to the file below for future uses."""
         with open("used_own_ids.txt", "a") as f:
             f.write(str(int(self.last_own_id) + 1) + "\n")
 
@@ -104,7 +105,7 @@ class TestTradesMixin(TestCase):
 
         open_trades = self.oanda.get_all_trades()
         open_trades_own_ids_list = \
-            [trade["clientExtensions"]["id"] for trade in \
+            [trade["clientExtensions"]["id"] for trade in
              open_trades["trades"]]
         assert own_id_1 not in open_trades_own_ids_list
         assert own_id_2 not in open_trades_own_ids_list

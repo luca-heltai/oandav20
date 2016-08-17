@@ -3,14 +3,11 @@ import unittest
 from oandav20.testing import TestCase
 
 
-class TestPositionsMethods(TestCase):
-    """Tests for the PositionsMixin class."""
+class TestPositionsMixin(TestCase):
 
-    def test_get_positions(self):
-        """Test the 'get_positions' method."""
-        response = self.oanda.get_positions()
-
-        self.assertGreater(len(response["positions"]), 0)
+    def test_get_positions_method(self):
+        positions = self.oanda.get_positions()
+        assert len(positions["positions"]) > 0
 
 
 if __name__ == "__main__":

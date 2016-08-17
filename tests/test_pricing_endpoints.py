@@ -3,24 +3,15 @@ import unittest
 from oandav20.testing import TestCase
 
 
-class TestPricingMethods(TestCase):
-    """Tests for the PricingMixin class."""
+class TestPricingMixin(TestCase):
 
-    def test_get_pricing_for_single_instrument(self):
-        """Test pricing for one instrument in the 'get_pricing' method."""
-        response = self.oanda.get_pricing(["AUD_USD"])
+    def test_get_pricing_method(self):
+        single_instrument = self.oanda.get_pricing(["AUD_USD"])
+        assert "AUD_USD" in single_instrument["prices"][0]["instrument"]
 
-        self.assertTrue("AUD_USD", response["prices"][0]["instrument"])
+        more_instruments = self.oanda.get_pricing(["AUD_USD", "EUR_USD"])
+        assert "EUR_USD" in more_instruments["prices"][1]["instrument"]
 
-    def test_get_pricing_for_more_instruments(self):
-        """Test pricing for more instruments in the 'get_pricing' method."""
-        response = self.oanda.get_pricing(["EUR_USD", "GBP_USD"])
-
-        self.assertTrue("GBP_USD", response["prices"][1]["instrument"])
-
-    def test_get_pricing_for_invalid_instruments(self):
-        """Test invalid instrment code passed to the 'get_pricing'
-        method."""
         with self.assertRaises(ValueError):
             self.oanda.get_pricing(["foo"])
 
