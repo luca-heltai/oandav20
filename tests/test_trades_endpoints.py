@@ -48,21 +48,21 @@ class TestTradesMixin(TestCase):
     def test_get_all_trades_method(self):
         self.oanda.create_market_order("USD_CHF", "BUY", 1)
 
-        trades_details = self.oanda.get_all_trades()
-        assert len(trades_details["trades"]) >= 1
+        open_trades = self.oanda.get_all_trades()
+        assert len(open_trades["trades"]) >= 1
 
         trades_instrument_list = \
-            [trade["instrument"] for trade in trades_details["trades"]]
+            [trade["instrument"] for trade in open_trades["trades"]]
         assert "USD_CHF" in trades_instrument_list
 
-    def test_update_trade_(self):
+    def test_update_trade_method(self):
         own_id = "USD_CNH_" + self.last_own_id
         self.oanda.create_market_order("USD_CNH", "BUY", 1, own_id=own_id)
 
         pricing = self.oanda.get_pricing(["USD_CNH"])
         price = pricing["prices"][0]["bids"][0]["price"]
-        stoploss = float(price) - 0.01
-        takeprofit = float(price) + 0.01
+        stoploss = float(price) - 0.5
+        takeprofit = float(price) + 0.5
 
         is_updated = self.oanda.update_trade(
             own_id=own_id, stoploss=stoploss, takeprofit=takeprofit)
@@ -102,12 +102,12 @@ class TestTradesMixin(TestCase):
 
         self.oanda.close_filtered_trades(own_ids=[own_id_1, own_id_2])
 
-        trades_details = self.oanda.get_all_trades()
-        trades_own_ids_list = \
+        open_trades = self.oanda.get_all_trades()
+        open_trades_own_ids_list = \
             [trade["clientExtensions"]["id"] for trade in \
-             trades_details["trades"]]
-        assert own_id_1 not in trades_own_ids_list
-        assert own_id_2 not in trades_own_ids_list
+             open_trades["trades"]]
+        assert own_id_1 not in open_trades_own_ids_list
+        assert own_id_2 not in open_trades_own_ids_list
 
         self.oanda.close_filtered_trades(instrument="USD")
 
