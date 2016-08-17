@@ -27,23 +27,44 @@ class TradesMixin:
 
         Example:
             {
-                "lastTransactionID": "6397",
+                "lastTransactionID": "1025",
                 "trade": {
                     "clientExtensions": {
-                        "id": "my_eur_usd_trade"
+                        "id": "USD_CHF_95",
                     },
-                    "currentUnits": "100",
-                    "financing": "0.00000",
-                    "id": "6395",
-                    "initialUnits": "100",
-                    "instrument": "EUR_USD",
-                    "openTime": "2016-06-22T18:41:48.258142231Z",
-                    "price": "1.13033",
-                    "realizedPL": "0.00000",
+                    "currentUnits": "1",
+                    "financing": "0.0000",
+                    "id": "1023",
+                    "initialUnits": "1",
+                    "instrument": "USD_CHF",
+                    "openTime": "2016-08-17T15:21:29.306846600Z",
+                    "price": "0.96308",
+                    "realizedPL": "0.0000",
                     "state": "OPEN",
-                    "unrealizedPL": "-0.01438"
+                    "stopLossOrder": {
+                        "createTime": "2016-08-17T15:21:29.715039917Z",
+                        "id": "1025",
+                        "price": "0.95287",
+                        "state": "PENDING",
+                        "timeInForce": "GTC",
+                        "tradeID": "1023",
+                        "triggerCondition": "TRIGGER_DEFAULT",
+                        "type": "STOP_LOSS"
+                    },
+                    "takeProfitOrder": {
+                        "createTime": "2016-08-17T15:21:29.715039917Z",
+                        "id": "1024",
+                        "price": "0.97287",
+                        "state": "PENDING",
+                        "timeInForce": "GTC",
+                        "tradeID": "1023",
+                        "triggerCondition": "TRIGGER_DEFAULT",
+                        "type": "TAKE_PROFIT"
+                    },
+                    "unrealizedPL": "-0.0002"
                 }
             }
+
 
         Raises:
             requests.HTTPError:
@@ -64,75 +85,6 @@ class TradesMixin:
         used_id = trade_id or own_id
         endpoint = "/{0}/trades/{1}".format(account_id, used_id)
         response = self.send_request(endpoint)
-
-        if response.status_code >= 400:
-            response.raise_for_status()
-
-        return response.json()
-
-    def get_filtered_trades(self, trade_ids: List[int] = [],
-                            instrument: str = "", account_id: str = "") \
-            -> dict:
-        """Get list of filtered open trades.
-
-        There are picked only the two filters (see parameters) which I
-        consider as reasonable.
-
-        Arguments:
-            trade_ids:
-                List of Oanda trade IDs, not own trade IDs.
-            instrument:
-                Code of single instrument.
-            account_id:
-                Oanda trading account ID.
-
-        Returns:
-            JSON object (dict) with the filtered open trades details.
-
-        Example:
-            {
-                "lastTransactionID": "6397",
-                "trades": [
-                    {
-                        "currentUnits": "-600",
-                        "financing": "0.00000",
-                        "id": "6397",
-                        "initialUnits": "-600",
-                        "instrument": "USD_CAD",
-                        "openTime": "2016-06-22T18:41:48.262344782Z",
-                        "price": "1.28241",
-                        "realizedPL": "0.00000",
-                        "state": "OPEN",
-                        "unrealizedPL": "-0.08525"
-                    },
-                    {
-                        ...
-                    }
-                ]
-            }
-
-        Raises:
-            requests.HTTPError:
-                HTTP response status code is 4xx or 5xx.
-            ValueError:
-                Invalid instrument code passed to the 'instrument' parameter.
-        """
-        account_id = account_id or self.default_id
-        endpoint = "/{}/trades".format(account_id)
-        url_params = {}
-
-        if trade_ids:
-            joined_ids = ",".join([str(id) for id in trade_ids])
-            url_params["ids"] = joined_ids
-
-        if instrument:
-            if instrument in INSTRUMENTS.values():
-                url_params["instrument"] = instrument
-            else:
-                raise ValueError("Invalid instrument code ''.".format(
-                    instrument))
-
-        response = self.send_request(endpoint, params=url_params)
 
         if response.status_code >= 400:
             response.raise_for_status()
@@ -191,7 +143,7 @@ class TradesMixin:
                      stoploss: float = 0.0, takeprofit: float = 0.0,
                      account_id: str = "") \
             -> bool:
-        """Create / update / remove values for the given order, eg. stoploss.
+        """Update editable values (see the parameters) for the given order.
 
         User may choose if wants to update the trade by Oanda ID or its ID.
 
@@ -231,7 +183,7 @@ class TradesMixin:
             own_id = "@" + own_id
 
         used_id = trade_id or own_id
-        endpoint = "/{0}/orders/{1}".format(account_id, used_id)
+        endpoint = "/{0}/trades/{1}/orders".format(account_id, used_id)
         request_body = {}
 
         if stoploss:
@@ -257,11 +209,11 @@ class TradesMixin:
         if response.status_code >= 400:
             response.raise_for_status()
 
-        return response.status_code == 201
+        return response.status_code == 200
 
     def update_trade_extensions(self, trade_id: int = 0, own_id: str = "",
-                                new_own_id: str = "", tag: str = "",
-                                comment: str = "", account_id: str = "") \
+                                tag: str = "", comment: str = "",
+                                account_id: str = "") \
             -> bool:
         """Update client extensions for the given trade.
 
@@ -275,8 +227,6 @@ class TradesMixin:
                 Trade ID provided by Oanda.
             own_id:
                 Own ID.
-            new_own_id:
-                New own ID which will replace existing own ID.
             tag:
                 Trade tag.
             comment:
@@ -305,9 +255,6 @@ class TradesMixin:
         endpoint = \
             "/{0}/trades/{1}/clientExtensions".format(account_id, used_id)
         request_body = {"clientExtensions": {}}
-
-        if new_own_id:
-            request_body["clientExtensions"]["id"] = new_own_id
 
         if tag:
             request_body["clientExtensions"]["tag"] = tag
@@ -397,7 +344,7 @@ class TradesMixin:
         """
         account_id = account_id or self.default_id
 
-        if not trade_ids or not own_ids or not instrument:
+        if not trade_ids and not own_ids and not instrument:
             raise TypeError("Missing argument either for the 'trade_ids' or "
                             "'own_ids' or 'instrument'.")
 

@@ -137,6 +137,11 @@ class OrdersMixin:
                     "comment": comment,
                     "id": str(own_id),
                     "tag": tag
+                },
+                "tradeClientExtensions": {
+                    "comment": comment,
+                    "id": str(own_id),
+                    "tag": tag
                 }
             }
         }
@@ -172,6 +177,15 @@ class OrdersMixin:
             return response.json()["orderCreateTransaction"]["id"]
         else:
             return response.status_code == 201
+
+    def create_market_order(self, *args, **kwargs):
+        return self.create_order("MARKET", *args, **kwargs)
+
+    def create_limit_order(self, *args, **kwargs):
+        return self.create_order("LIMIT", *args, **kwargs)
+
+    def create_stop_order(self, *args, **kwargs):
+        return self.create_order("STOP", *args, **kwargs)
 
     def get_order(self, order_id: int = 0, own_id: str = "",
                   account_id: str = "") \
@@ -295,8 +309,7 @@ class OrdersMixin:
         if instrument in INSTRUMENTS.values():
             url_params = {"instrument": instrument}
         else:
-            raise ValueError("Invalid instrument code {}.".format(
-                instrument))
+            raise ValueError("Invalid instrument code {}.".format(instrument))
 
         response = self.send_request(endpoint, params=url_params)
 
@@ -520,16 +533,22 @@ class OrdersMixin:
         used_id = order_id or own_id
         endpoint = \
             "/{0}/orders/{1}/clientExtensions".format(account_id, used_id)
-        request_body = {"clientExtensions": {}}
+        request_body = {
+            "clientExtensions": {},
+            "tradeClientExtensions": {}
+        }
 
         if new_own_id:
             request_body["clientExtensions"]["id"] = new_own_id
+            request_body["tradeClientExtensions"]["id"] = new_own_id
 
         if tag:
             request_body["clientExtensions"]["tag"] = tag
+            request_body["tradeClientExtensions"]["tag"] = tag
 
         if comment:
             request_body["clientExtensions"]["comment"] = comment
+            request_body["tradeClientExtensions"]["comment"] = comment
 
         response = self.send_request(endpoint, "PUT", json=request_body)
 
