@@ -7,3 +7,7 @@ Goals:
 - provide superior documentation with examples
 - clear methods naming
 - extra useful methods such as close all pendings orders + filter by instrument etc.
+
+Todo:
+
+- [ ] Add a configuration file option.
