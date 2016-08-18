@@ -15,6 +15,8 @@ True
 >>> o.client.close()
 ```
 
+**Note:** Source code will be uploaded as soon as possible, therefore import won't work.
+
 ## Features
 
 - pass only one Oanda account ID and remember it (useful, if you manage only one account)

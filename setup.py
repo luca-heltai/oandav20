@@ -1,17 +1,18 @@
 import sys
 from setuptools import setup, find_packages
 
+import pypandoc
+
 if sys.version_info < (3, 5, 0):
     sys.exit("ERROR: You need Python 3.5 or later to use oandav20.")
 
-with open("README.md", encoding="UTF-8") as f:
-    long_description = f.read()
+long_description = pypandoc.convert("README.md", "rst")
 
 setup(
     name="oandav20",
     version="0.1.0",
-    description="Unofficial Oanda v20 REST API wrapper.",
-    # long_description=long_description,
+    description="Unofficial SDK for Oanda v20 REST API.",
+    long_description=long_description,
     author="Nait Aul",
     author_email="nait-aul@protonmail.com",
     url="https://github.com/nait-aul/oandav20",
