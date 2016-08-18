@@ -11,7 +11,7 @@ setup(
     name="oandav20",
     version="0.1.0",
     description="Unofficial Oanda v20 REST API wrapper.",
-    long_description=long_description,
+    # long_description=long_description,
     author="Nait Aul",
     author_email="nait-aul@protonmail.com",
     url="https://github.com/nait-aul/oandav20",
@@ -21,10 +21,9 @@ setup(
         "requests"
     ],
     classifiers=[
-        "Development Status :: 4 - Beta",
-        "Intended Audience :: Financial and Insurance Industry",
+        "Development Status :: 1 - Planning",
+        "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
-        "Natural Language :: English",
         "Operating System :: OS Independent",
         "Programming Language :: Python :: 3.5",
         "Topic :: Software Development :: Libraries",
