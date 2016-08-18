@@ -20,9 +20,6 @@ setup(
     install_requires=[
         "requests"
     ],
-    extras_require={
-        "code-style": "flake8"
-    },
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Financial and Insurance Industry",
