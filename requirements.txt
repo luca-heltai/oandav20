@@ -2,4 +2,5 @@ flake8==3.0.4
 mccabe==0.5.2
 pycodestyle==2.0.0
 pyflakes==1.2.3
+pypandoc==1.2.0
 requests==2.11.0
