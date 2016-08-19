@@ -36,7 +36,7 @@ Intended related projects:
 
 ## Development status
 
-The lastest version 0.2.0 covers the minimum to run and keep an automatic trading software in my opinion.
+The latest version 0.2.0 covers the minimum to run and keep an automatic trading software in my opinion.
 
 The stable/production 1.0.0 will be released as soon as:
 
@@ -59,4 +59,4 @@ All new features, changes and bug fixes of each version is convered in the [CHAN
  
 ## License
 
-Oandav20 is licensed under the terms of the MIT License (see the [LICENSE](https://github.com/nait-aul/oandav20/blob/master/LICENSE) file)
+Oandav20 is licensed under the terms of the MIT License, for more details see the [LICENSE](https://github.com/nait-aul/oandav20/blob/master/LICENSE).
