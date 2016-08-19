@@ -10,7 +10,7 @@ long_description = pypandoc.convert("README.md", "rst")
 
 setup(
     name="oandav20",
-    version="0.1.0",
+    version="0.2.0",
     description="Unofficial SDK for Oanda v20 REST API.",
     long_description=long_description,
     author="Nait Aul",

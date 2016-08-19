@@ -15,8 +15,6 @@ True
 >>> o.client.close()
 ```
 
-**Note:** Source code will be uploaded as soon as possible, therefore import won't work.
-
 ## Features
 
 - pass only one Oanda account ID and remember it (useful, if you manage only one account)
@@ -38,7 +36,7 @@ Intended related projects:
 
 ## Development status
 
-The lastest version 0.1.0 covers the minimum to run and keep an automatic trading software in my opinion.
+The lastest version 0.2.0 covers the minimum to run and keep an automatic trading software in my opinion.
 
 The stable/production 1.0.0 will be released as soon as:
 
@@ -47,9 +45,9 @@ The stable/production 1.0.0 will be released as soon as:
 
 ## Documentation
 
-Full documentation will be placed in the [Wiki](https://github.com/nait-aul/oandav20/wiki) section here on GitHub.
+Full documentation will be placed in the [Wiki](https://github.com/nait-aul/oandav20/wiki) section on GitHub.
 
-First I need to write a documentation generator for my docstrings style (inspired by Google Docstring Style).
+Before I need to write a documentation generator for my docstrings style (inspired by Google Docstring Style).
 
 ## Contribution
 
