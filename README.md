@@ -25,6 +25,8 @@ pip install oandav20
 
 ## Features
 
+Apart from the basics (handling account, orders, trading etc.) there are also features such as:
+
 - pass only one Oanda account ID and remember it (useful, if you manage only one account)
 - update pending orders without closing one and creating one (reusing the previous order details)
 - cancel filtered / all pending orders at once (eg. cancel all fx pairs with the "USD")
