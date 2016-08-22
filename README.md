@@ -17,6 +17,8 @@ True
 
 ## Installation
 
+To install `oandav20` you need Python 3.5.x and above because of using type hints (new feature in Python 3.5).
+
 ```
 pip install oandav20
 ```
@@ -24,7 +26,8 @@ pip install oandav20
 ## Features
 
 - pass only one Oanda account ID and remember it (useful, if you manage only one account)
-- cancel filtered / all pending orders at once
+- update pending orders without closing one and creating one (reusing the previous order details)
+- cancel filtered / all pending orders at once (eg. cancel all fx pairs with the "USD")
 - close filtered / all open trades at once
 
 Intended to implement:
@@ -53,7 +56,7 @@ The latest version 0.2.0 covers the minimum to run and keep an automatic trading
 The stable/production 1.0.0 will be released as soon as:
 
 1. Oanda implement promised features such as streaming, pricing history and tools from Oanda Forex Labs
-2. I create an AOS to know which functions are needed and which not. 
+2. I create an AOS to know which methods are needed and which not. 
 
 ## Contribution
 
@@ -65,4 +68,4 @@ All new features, changes and bug fixes of each versions are convered in the [CH
  
 ## License
 
-Oandav20 is licensed under the terms of the MIT License, for more details see the [LICENSE](https://github.com/nait-aul/oandav20/blob/master/LICENSE).
+`oandav20` is licensed under the terms of the MIT License, for more details see the [LICENSE](https://github.com/nait-aul/oandav20/blob/master/LICENSE).
