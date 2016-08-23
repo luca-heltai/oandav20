@@ -139,3 +139,101 @@ There is also very similar but verbose variant of this method and it's:
 ```
 
 Dictionary keys for the "orders", "positions" and "trades" will be covered lately.
+
+### Pricing methods
+
+#### Actual price
+
+To get actual pricing information for one or more instruments:
+
+```python
+>>> print(json.dumps(o.get_pricing(["EUR_USD"]), indent=4, sort_keys=True))
+>>> {
+...     "prices": [
+...         {
+...             "asks": [
+...                 {
+...                     "liquidity": 10000000,
+...                     "price": "1.13028"
+...                 },
+...                 {
+...                     ...
+...                 }
+...             ],
+...             "bids": [
+...                 {
+...                     "liquidity": 10000000,
+...                     "price": "1.13015"
+...                 },
+...                 {
+...                     ...
+...                 }
+...             ],
+...             "closeoutAsk": "1.13032",
+...             "closeoutBid": "1.13011",
+...             "instrument": "EUR_USD",
+...             "quoteHomeConversionFactors": {
+...                 "negativeUnits": "0.95904000",
+...                 "positiveUnits": "0.95886000"
+...             },
+...             "status": "tradeable",
+...             "time": "2016-06-22T18:41:36.201836422Z",
+...             "unitsAvailable": {
+...                 "default": {
+...                     "long": "2013434",
+...                     "short": "2014044"
+...                 },
+...                 "openOnly": {
+...                     "long": "2013434",
+...                     "short": "2014044"
+...                 },
+...                 "reduceFirst": {
+...                     "long": "2013434",
+...                     "short": "2014044"
+...                 },
+...                 "reduceOnly": {
+...                     "long": "0",
+...                     "short": "0"
+...                 }
+...             }
+...         }
+...     ]
+... }
+```
+
+**Note**: This is temporary solution before Oanda implement streaming endpoint. So you have to implement an infinite loop to call over and over the `.get_pricing` method and check if it's time to trade or not.
+
+Example:
+
+```python
+...
+
+while True:
+    variable = o.get_pricing(["your_instruments"])
+
+    if <your_condition>:
+        call_some_function()
+
+    # maybe time sleep
+
+...
+```
+
+Keys "asks" and "bids" may have 2 or more dictionary inside. From my observation is fine to work only with the first one to get ask and bid price:
+
+```python
+>>> price = o.get_pricing(["EUR_USD"])
+>>> ask_price = price["prices"][0]["asks"][0]["price"]  # 1.13028
+>>> bid_price = price["prices"][0]["bids"][0]["price"]  # 1.13015
+```
+
+List of all instruments codes is available [HERE](https://github.com/nait-aul/oandav20/blob/master/oandav20/mixins/account.py).
+
+If you pass more instruments codes at once, the pricing information for them will be ordered in the same order as you passed the codes:
+
+```python
+>>> price = o.get_pricing(["AUD_USD", "EUR_USD", "GBP_USD"])
+>>> price["prices"][2]["instrument"] == "GBP_USD"
+True
+```
+
