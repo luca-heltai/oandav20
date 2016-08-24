@@ -38,9 +38,9 @@ The main object for interaction with the Oanda API server is `Oanda` class:
 
 As you may see, `Oanda` requires 3 arguments:
 
-1. environment = "DEMO" or "REAL"
-2. access_token = your generated access token which will be used for authentication (navigate to you Oanda account dashboard and click to `Manage API Access`)
-3. default_id = your default trading accout ID (in the dashboard click to `Manage Funds`)
+1. `environment` = "DEMO" or "REAL"
+2. `access_token` = your generated access token which will be used for authentication (navigate to you Oanda account dashboard and click to `Manage API Access`)
+3. `default_id` = your default trading accout ID (in the dashboard click to `Manage Funds`)
 
 Before we start calling methods on the `o` object, I would like to tell you what is really happening in background.
 
@@ -137,7 +137,7 @@ There is also very similar but verbose variant of this method and it's:
 ... }
 ```
 
-Dictionary keys for the "orders", "positions" and "trades" will be covered lately.
+Dictionary keys for the `orders`, `positions` and `trades` will be covered lately.
 
 ### Pricing methods
 
@@ -218,7 +218,7 @@ while True:
 ...
 ```
 
-Keys "asks" and "bids" may have 2 or more dictionary inside. From my observation is fine to work only with the first one to get ask and bid price:
+Keys `asks` and `bids` may have 2 or more dictionary inside. From my observation is fine to work only with the first one to get ask and bid price:
 
 ```python
 >>> price = o.get_pricing(["EUR_USD"])
@@ -251,7 +251,7 @@ To create an order with minimum arguments:
 
 Recapitulation of units size:
 
-| used term | size |
+| common term | size |
 | --- | --- |
 | 1 micro lot | 1000|
 | 1 mini lot | 10000 |
@@ -268,7 +268,7 @@ Now I would like to introduce you nice Oanda feature and it's using own ID / tag
 True
 ```
 
-The "EUR_USD_1" ID will same for orders and trades manipulating which is much more better then work with Oanda IDs (one for orders, another different for trades).
+The `EUR_USD_1` ID will same for orders and trades manipulating which is much more better then work with Oanda IDs (one for orders, another different for trades).
 
 I bet you want also use stoploss and takeprofit right? Let's do it:
 
@@ -288,7 +288,7 @@ Finally, you may also use short version (aliases):
 >>> o.create_stop_order("EUR_USD", "...")
 ```
 
-**Note**: Order type "MARKET IF TOUCHED" is also not implemented (I consider it useless).
+**Note**: Order type `MARKET IF TOUCHED` is also not implemented (I consider it useless).
 
 #### Checking order details
 
@@ -318,8 +318,36 @@ To control your order details or check order status:
 ...     }
 ... }
 ```
+The order above is still PENDING. Once it will be filled, the `state` key will show value `FILLED`.
 
-The order above is still PENDING. Once it will be filled, the "state" key will show value "FILLED".
+#### Updating pending orders
+
+Suppose I sent an sell stop order with bad values and hopefully it's still pending, so I want to update / repair it:
+
+```python
+>>> o.update_order(own_id="EUR_USD_4", price=1.0020, price_bound=1.0018,
+...                stoploss=1.0040, takeprofit=1.0)
+True
+```
+
+Notice the `price_bound` argument. It's next super feature from Oanda which works only for market and stop orders. Price bound means the worst filled price you accept.
+
+If you send an market order with price level X and price bound Y and market conditions quickly changed at that time that actual price is over price bound Y, the order won't be filled. 
+
+#### Canceling pending orders
+
+I guess you except something like `.close_order()`, do you? If so, you've got it :+1:.
+
+```python
+>>> o.close_order(own_id="EUR_USD_5")
+True
+```
+
+**Note**: Other order methods are described in the API reference.
+
+### Trades methods
+
+@@@
 
 ### Tips and tricks
 
