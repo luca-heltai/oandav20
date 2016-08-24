@@ -1,12 +1,15 @@
 import sys
 from setuptools import setup, find_packages
 
-import pypandoc
-
 if sys.version_info < (3, 5, 0):
     sys.exit("ERROR: You need Python 3.5 or later to use oandav20.")
 
-long_description = pypandoc.convert("README.md", "rst")
+try:
+    import pypandoc
+
+    long_description = pypandoc.convert("README.md", "rst")
+except ImportError:
+    long_description = ""
 
 setup(
     name="oandav20",
