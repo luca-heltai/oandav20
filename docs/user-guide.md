@@ -68,12 +68,11 @@ To get account summary details for the default trading account just call:
 >>> o.get_account_summary(account_id="another_id")
 ```
 
-The output would be in poorly arranged dictionary (alias JSON object), so I will use `json` standard module for nice priting.
+The output would be in poorly arranged dictionary (alias JSON object), so I use `json` standard module for nice priting here and for every method below returning JSON.
+
 
 ```python
->>> import json
->>>
->>> print(json.dumps(o.get_account_summary(), indent=4, sort_keys=True))
+>>> o.get_account_summary()
 ... {
 ...     "account": {
 ...         "NAV": "43650.78835",
@@ -120,7 +119,7 @@ requests.exceptions.HTTPError: 400 Client Error: Bad Request for url: ...
 There is also very similar but verbose variant of this method and it's:
 
 ```python
->>> print(json.dumps(o.get_account(), indent=4, sort_keys=True))
+>>> o.get_account()
 ... {
 ...     "account": {
 ...         ...
@@ -142,12 +141,12 @@ Dictionary keys for the "orders", "positions" and "trades" will be covered latel
 
 ### Pricing methods
 
-#### Actual price
+#### Getting actual pricing
 
 To get actual pricing information for one or more instruments:
 
 ```python
->>> print(json.dumps(o.get_pricing(["EUR_USD"]), indent=4, sort_keys=True))
+>>> o.get_pricing(["EUR_USD"])
 >>> {
 ...     "prices": [
 ...         {
@@ -227,7 +226,7 @@ Keys "asks" and "bids" may have 2 or more dictionary inside. From my observation
 >>> bid_price = price["prices"][0]["bids"][0]["price"]  # 1.13015
 ```
 
-List of all instruments codes is available [HERE](https://github.com/nait-aul/oandav20/blob/master/oandav20/mixins/account.py).
+List of all instruments codes is available [HERE](https://github.com/nait-aul/oandav20/blob/master/oandav20/mixins/account.py). Keys represent human values and values instrument codes. If you pass invalid instrument code, `ValueError` will be raised.
 
 If you pass more instruments codes at once, the pricing information for them will be ordered in the same order as you passed the codes:
 
@@ -236,4 +235,104 @@ If you pass more instruments codes at once, the pricing information for them wil
 >>> price["prices"][2]["instrument"] == "GBP_USD"
 True
 ```
+
+### Orders methods
+
+#### Creating orders
+
+To create an order with minimum arguments:
+
+```python
+>>> o.create_order("MARKET", "EUR_USD", "SELL", 1000)
+12345
+```
+
+**Note**: Oanda allows to trade even with 1 single unit.
+
+Recapitulation of units size:
+
+| used term | size |
+| --- | --- |
+| 1 micro lot | 1000|
+| 1 mini lot | 10000 |
+| 1 lot | 100000 |
+
+The returned value is Oanda order ID which we may use in other methods such as getting order details or closing orders.
+
+Now I would like to introduce you nice Oanda feature and it's using own ID / tags / comments:
+
+```python
+>>> o.create_order("LIMIT", "EUR_USD", "BUY", 1000, price=0.5,
+...                own_id="EUR_USD_1", tag="trading system A",
+...                comment="support level")
+True
+```
+
+The "EUR_USD_1" ID will same for orders and trades manipulating which is much more better then work with Oanda IDs (one for orders, another different for trades).
+
+I bet you want also use stoploss and takeprofit right? Let's do it:
+
+```python
+>>> o.create_order("STOP", "EUR_USD", "SELL", 1000, 1.5, own_id="EUR_USD_2",
+...                stoploss=1.51, takeprofit=1.49)
+True
+```
+
+**Note**: Trailing stoploss is not implemented due to failed tests. If you want this feature, let me know.
+
+Finally, you may also use short version (aliases):
+
+```python
+>>> o.create_market_order("EUR_USD", "...")
+>>> o.create_limit_order("EUR_USD", "...")
+>>> o.create_stop_order("EUR_USD", "...")
+```
+
+**Note**: Order type "MARKET IF TOUCHED" is also not implemented (I consider it useless).
+
+#### Checking order details
+
+To control your order details or check order status:
+
+```python
+>>> o.get_order(own_id="EUR_USD_3")  # or Oanda order ID o.get_order(12345)
+... {
+...     "lastTransactionID": "6375",
+...     "order": {
+...         "clientExtensions": {
+...             "comment": "New idea for trading",
+...             "id": "EUR_USD_3",
+...             "tag": "strategy_9"
+...         },
+...         "createTime": "2016-06-22T18:41:29.294265338Z",
+...         "id": "6375",
+...         "instrument": "EUR_USD",
+...         "partialFill": "DEFAULT_FILL",
+...         "positionFill": "POSITION_DEFAULT",
+...         "price": "1.30000",
+...         "state": "PENDING",
+...         "timeInForce": "GTC",
+...         "triggerCondition": "TRIGGER_DEFAULT",
+...         "type": "STOP",
+...         "units": "10000"
+...     }
+... }
+```
+
+The order above is still PENDING. Once it will be filled, the "state" key will show value "FILLED".
+
+### Tips and tricks
+
+#### Converting Oanda datetime to Python datetime object
+
+Oanda provides datetime in RFC 3339 format which is incompatible with Python datetime object, so we need to do a bit more work to convert it:
+
+```python
+>>> import datetime 
+>>>
+>>> oanda_datetime = "2016-06-22T18:41:29.294265338Z"
+>>> cut_it_off = oanda_datetime[:-4]
+>>>
+>>> datetime.datetime.strptime(cut_it_off, "%Y-%m-%dT%H:%M:%S.%f")
+datetime.datetime(2016, 06, 22, 18, 41, 29, 294265)
 
