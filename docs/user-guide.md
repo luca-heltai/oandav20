@@ -343,7 +343,7 @@ I guess you except something like `.close_order()`, do you? If so, you've got it
 True
 ```
 
-**Note**: Other order methods are described in the API reference.
+**Note**: Other order methods are described in the [API reference][api-reference].
 
 ### Trades methods
 
@@ -412,7 +412,49 @@ True
 True
 ```
 
-**Note**: Other trade methods are described in the API reference.
+**Note**: Other trade methods are described in the [API reference][api-reference].
+
+### Positions
+
+#### Getting positions
+
+Positions show cumulative profits and losses on both sides (LONG and SHORT) for each instrument.
+
+```python
+>>> o.get_positions()
+... {
+...     "lastTransactionID": "6381",
+...     "positions": [
+...         {
+...             "instrument": "EUR_USD",
+...             "long": {
+...                 "pl": "-2.34608",
+...                 "resettablePL": "-2.34608",
+...                 "units": "0",
+...                 "unrealizedPL": "0.00000"
+...             },
+...             "pl": "-2.34608",
+...             "resettablePL": "-2.34608",
+...             "short": {
+...                 "pl": "0.00000",
+...                 "resettablePL": "0.00000",
+...                 "units": "0",
+...                 "unrealizedPL": "0.00000"
+...             },
+...             "unrealizedPL": "0.00000"
+...         },
+...         {
+...             "instrument": "USD_JPY",
+...             ...
+...         }
+...     ]
+... }
+```
+
+---
+
+And this is the end of quickstart section. More methods you'll find in the [API Reference][api-reference] and next new methods are going to be implement, don't worry.
+The future `1.0.0` will have everything necessary for automatic / algorithimic trading.
 
 ### Tips and tricks
 
@@ -428,4 +470,6 @@ Oanda provides datetime in RFC 3339 format which is incompatible with Python dat
 >>>
 >>> datetime.datetime.strptime(cut_it_off, "%Y-%m-%dT%H:%M:%S.%f")
 datetime.datetime(2016, 6, 22, 18, 41, 29, 294265)
+
+[api-reference]: https://github.com/nait-aul/oandav20/blob/master/docs/api-reference.md
 
