@@ -21,7 +21,7 @@ There is also time-saving feature:
 If you haven't installed it yet and have Python 3.5.x version and above, then do:
 
 ```
-pip install oandav20
+$ pip install oandav20
 ```
 
 ## Quickstart
@@ -295,7 +295,7 @@ Finally, you may also use short version (aliases):
 To control your order details or check order status:
 
 ```python
->>> o.get_order(own_id="EUR_USD_3")  # or Oanda order ID o.get_order(12345)
+>>> o.get_order(own_id="EUR_USD_3")  # or Oanda order ID o.get_order(123)
 ... {
 ...     "lastTransactionID": "6375",
 ...     "order": {
@@ -318,7 +318,7 @@ To control your order details or check order status:
 ...     }
 ... }
 ```
-The order above is still PENDING. Once it will be filled, the `state` key will show value `FILLED`.
+The order above is still PENDING. Once it will be filled, the `state` key will show value `FILLED` and from the order becomes a trade.
 
 #### Updating pending orders
 
@@ -347,7 +347,72 @@ True
 
 ### Trades methods
 
-@@@
+#### Checking trade details
+
+In order to get trade details must be first filled an order. If this condition is met, then do:
+
+```python
+>>> o.get_trade(own_id="EUR_USD_6")
+... {
+...     "lastTransactionID": "1025",
+...     "trade": {
+...         "clientExtensions": {
+...             "id": "EUR_USD_6",
+...         },
+...         "currentUnits": "1",
+...         "financing": "0.0000",
+...         "id": "1023",
+...         "initialUnits": "1",
+...         "instrument": "EUR_USD",
+...         "openTime": "2016-08-17T15:21:29.306846600Z",
+...         "price": "1.12860",
+...         "realizedPL": "0.0000",
+...         "state": "OPEN",
+...         "stopLossOrder": {
+...             "createTime": "2016-08-17T15:21:29.715039917Z",
+...             "id": "1025",
+...             "price": "1.12507",
+...             "state": "PENDING",
+...             "timeInForce": "GTC",
+...             "tradeID": "1023",
+...             "triggerCondition": "TRIGGER_DEFAULT",
+...             "type": "STOP_LOSS"
+...         },
+...         "takeProfitOrder": {
+...             "createTime": "2016-08-17T15:21:29.715039917Z",
+...             "id": "1024",
+...             "price": "1.4",
+...             "state": "PENDING",
+...             "timeInForce": "GTC",
+...             "tradeID": "1023",
+...             "triggerCondition": "TRIGGER_DEFAULT",
+...             "type": "TAKE_PROFIT"
+...         },
+...         "unrealizedPL": "-0.0002"
+...     }
+... }
+```
+
+Don't forget to use the Oanda definitions site for the keys above, concretely [HERE](http://developer.oanda.com/rest-live-v20/trades-df/) for trades.
+
+#### Updating open trades
+
+Suppose I want to secure profit (move stoploss) before the price meet the takeprofit level:
+
+```python
+>>> o.update_trade(own_id="EUR_USD_6", stoploss=1.13)
+True
+>>>
+```
+
+#### Closing open trades
+
+```python
+>>> o.close_trade(own_id="EUR_USD_6")
+True
+```
+
+**Note**: Other trade methods are described in the API reference.
 
 ### Tips and tricks
 
@@ -362,5 +427,5 @@ Oanda provides datetime in RFC 3339 format which is incompatible with Python dat
 >>> cut_it_off = oanda_datetime[:-4]
 >>>
 >>> datetime.datetime.strptime(cut_it_off, "%Y-%m-%dT%H:%M:%S.%f")
-datetime.datetime(2016, 06, 22, 18, 41, 29, 294265)
+datetime.datetime(2016, 6, 22, 18, 41, 29, 294265)
 
