@@ -414,7 +414,7 @@ True
 
 **Note**: Other trade methods are described in the [API reference][api-reference].
 
-### Positions
+### Positions methods
 
 #### Getting positions
 
