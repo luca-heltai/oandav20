@@ -20,7 +20,7 @@ True
 To install `oandav20` you need Python 3.5.x and above because of using type hints (new feature in Python 3.5).
 
 ```
-pip install oandav20
+$ pip install oandav20
 ```
 
 ## Features
