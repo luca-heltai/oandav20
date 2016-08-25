@@ -456,9 +456,9 @@ Positions show cumulative profits and losses on both sides (LONG and SHORT) for 
 And this is the end of quickstart section. More methods you'll find in the [API Reference][api-reference] and next new methods are going to be implement, don't worry.
 The future `1.0.0` will have everything necessary for automatic / algorithimic trading.
 
-### Tips and tricks
+## Tips and tricks
 
-#### Converting Oanda datetime to Python datetime object
+### Converting Oanda datetime to Python datetime object
 
 Oanda provides datetime in RFC 3339 format which is incompatible with Python datetime object, so we need to do a bit more work to convert it:
 
