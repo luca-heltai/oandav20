@@ -1,7 +1,6 @@
 # Oandav20 documentation
 
 - [User guide](https://github.com/nait-aul/oandav20/blob/master/docs/user-guide.md)
-
     - [Introduction](https://github.com/nait-aul/oandav20/blob/master/docs/user-guide.md#introduction)
     - [Installation](https://github.com/nait-aul/oandav20/blob/master/docs/user-guide.md#installation)
     - [Quickstart](https://github.com/nait-aul/oandav20/blob/master/docs/user-guide.md#quickstart)
@@ -23,7 +22,5 @@
             - [Getting positions](https://github.com/nait-aul/oandav20/blob/master/docs/user-guide.md#getting-positions)
     - [Tips and tricks](https://github.com/nait-aul/oandav20/blob/master/docs/user-guide.md#tips-and-tricks)
         - [Converting Oanda datetime to Python datetime object](https://github.com/nait-aul/oandav20/blob/master/docs/user-guide.md#converting-oanda-datetime-to-python-datetime-object)
-
 - [API Reference](https://github.com/nait-aul/oandav20/blob/master/docs/api-reference.md)
-
     - coming soon
