@@ -1,12 +1,10 @@
-# Linux staff
+# Linux
 
 *~
 
-# Python staff
+# Python
 
 __pycache__/
 build/
 dist/
-*.egg-info
-
-
+*.egg-info/
