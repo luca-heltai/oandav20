@@ -73,36 +73,36 @@ The output would be in poorly arranged dictionary (alias JSON object), so I use 
 
 ```python
 >>> o.get_account_summary()
-... {
-...     "account": {
-...         "NAV": "43650.78835",
-...         "alias": "My New Account #2",
-...         "balance": "43650.78835",
-...         "createdByUserID": <USERID>,
-...         "createdTime": "2015-08-12T18:21:00.697504698Z",
-...         "currency": "CHF",
-...         "hedgingEnabled": false,
-...         "id": "<ACCOUNT>",
-...         "lastTransactionID": "6356",
-...         "marginAvailable": "43650.78835",
-...         "marginCloseoutMarginUsed": "0.00000",
-...         "marginCloseoutNAV": "43650.78835",
-...         "marginCloseoutPercent": "0.00000",
-...         "marginCloseoutPositionValue": "0.00000",
-...         "marginCloseoutUnrealizedPL": "0.00000",
-...         "marginRate": "0.02",
-...         "marginUsed": "0.00000",
-...         "openPositionCount": 0,
-...         "openTradeCount": 0,
-...         "pendingOrderCount": 0,
-...         "pl": "-56034.41199",
-...         "positionValue": "0.00000",
-...         "resettablePL": "-56034.41199",
-...         "unrealizedPL": "0.00000",
-...         "withdrawalLimit": "43650.78835"
-...     },
-...     "lastTransactionID": "6356"
-... }
+{
+    "account": {
+        "NAV": "43650.78835",
+        "alias": "My New Account #2",
+        "balance": "43650.78835",
+        "createdByUserID": <USERID>,
+        "createdTime": "2015-08-12T18:21:00.697504698Z",
+        "currency": "CHF",
+        "hedgingEnabled": false,
+        "id": "<ACCOUNT>",
+        "lastTransactionID": "6356",
+        "marginAvailable": "43650.78835",
+        "marginCloseoutMarginUsed": "0.00000",
+        "marginCloseoutNAV": "43650.78835",
+        "marginCloseoutPercent": "0.00000",
+        "marginCloseoutPositionValue": "0.00000",
+        "marginCloseoutUnrealizedPL": "0.00000",
+        "marginRate": "0.02",
+        "marginUsed": "0.00000",
+        "openPositionCount": 0,
+        "openTradeCount": 0,
+        "pendingOrderCount": 0,
+        "pl": "-56034.41199",
+        "positionValue": "0.00000",
+        "resettablePL": "-56034.41199",
+        "unrealizedPL": "0.00000",
+        "withdrawalLimit": "43650.78835"
+    },
+    "lastTransactionID": "6356"
+}
 ```
 
 I expect that you know what the keys mean. If not, use official definitions explanation by Oanda [HERE](http://developer.oanda.com/rest-live-v20/account-df/). In the menu at the bottom are also covered definitions for other methods I will be using.
@@ -120,21 +120,21 @@ There is also very similar but verbose variant of this method and it's:
 
 ```python
 >>> o.get_account()
-... {
-...     "account": {
-...         ...
-...         "orders": [
-...             # list of pending orders
-...         ],
-...         "positions": [
-...             # list of positions (finished trades)
-...         ],
-...         "trades": [
-...             # list of open trades
-...         ]
-...         ...
-...     }
-... }
+{
+    "account": {
+        ...
+        "orders": [
+            # list of pending orders
+        ],
+        "positions": [
+            # list of positions (finished trades)
+        ],
+        "trades": [
+            # list of open trades
+        ]
+        ...
+    }
+}
 ```
 
 Dictionary keys for the `orders`, `positions` and `trades` will be covered lately.
@@ -147,57 +147,57 @@ To get actual pricing information for one or more instruments:
 
 ```python
 >>> o.get_pricing(["EUR_USD"])
->>> {
-...     "prices": [
-...         {
-...             "asks": [
-...                 {
-...                     "liquidity": 10000000,
-...                     "price": "1.13028"
-...                 },
-...                 {
-...                     ...
-...                 }
-...             ],
-...             "bids": [
-...                 {
-...                     "liquidity": 10000000,
-...                     "price": "1.13015"
-...                 },
-...                 {
-...                     ...
-...                 }
-...             ],
-...             "closeoutAsk": "1.13032",
-...             "closeoutBid": "1.13011",
-...             "instrument": "EUR_USD",
-...             "quoteHomeConversionFactors": {
-...                 "negativeUnits": "0.95904000",
-...                 "positiveUnits": "0.95886000"
-...             },
-...             "status": "tradeable",
-...             "time": "2016-06-22T18:41:36.201836422Z",
-...             "unitsAvailable": {
-...                 "default": {
-...                     "long": "2013434",
-...                     "short": "2014044"
-...                 },
-...                 "openOnly": {
-...                     "long": "2013434",
-...                     "short": "2014044"
-...                 },
-...                 "reduceFirst": {
-...                     "long": "2013434",
-...                     "short": "2014044"
-...                 },
-...                 "reduceOnly": {
-...                     "long": "0",
-...                     "short": "0"
-...                 }
-...             }
-...         }
-...     ]
-... }
+{
+    "prices": [
+        {
+            "asks": [
+                {
+                    "liquidity": 10000000,
+                    "price": "1.13028"
+                },
+                {
+                    ...
+                }
+            ],
+            "bids": [
+                {
+                    "liquidity": 10000000,
+                    "price": "1.13015"
+                },
+                {
+                    ...
+                }
+            ],
+            "closeoutAsk": "1.13032",
+            "closeoutBid": "1.13011",
+            "instrument": "EUR_USD",
+            "quoteHomeConversionFactors": {
+                "negativeUnits": "0.95904000",
+                "positiveUnits": "0.95886000"
+            },
+            "status": "tradeable",
+            "time": "2016-06-22T18:41:36.201836422Z",
+            "unitsAvailable": {
+                "default": {
+                    "long": "2013434",
+                    "short": "2014044"
+                },
+                "openOnly": {
+                    "long": "2013434",
+                    "short": "2014044"
+                },
+                "reduceFirst": {
+                    "long": "2013434",
+                    "short": "2014044"
+                },
+                "reduceOnly": {
+                    "long": "0",
+                    "short": "0"
+                }
+            }
+        }
+    ]
+}
 ```
 
 **Note**: This is temporary solution before Oanda implement streaming endpoint. So you have to implement an infinite loop to call over and over the `.get_pricing` method and check if it's time to trade or not.
@@ -283,9 +283,9 @@ True
 Finally, you may also use short version (aliases):
 
 ```python
->>> o.create_market_order("EUR_USD", "...")
->>> o.create_limit_order("EUR_USD", "...")
->>> o.create_stop_order("EUR_USD", "...")
+>>> o.create_market_order("EUR_USD", ...)
+>>> o.create_limit_order("EUR_USD", ...)
+>>> o.create_stop_order("EUR_USD", ...)
 ```
 
 **Note**: Order type `MARKET IF TOUCHED` is also not implemented (I consider it useless).
@@ -296,27 +296,27 @@ To control your order details or check order status:
 
 ```python
 >>> o.get_order(own_id="EUR_USD_3")  # or Oanda order ID o.get_order(123)
-... {
-...     "lastTransactionID": "6375",
-...     "order": {
-...         "clientExtensions": {
-...             "comment": "New idea for trading",
-...             "id": "EUR_USD_3",
-...             "tag": "strategy_9"
-...         },
-...         "createTime": "2016-06-22T18:41:29.294265338Z",
-...         "id": "6375",
-...         "instrument": "EUR_USD",
-...         "partialFill": "DEFAULT_FILL",
-...         "positionFill": "POSITION_DEFAULT",
-...         "price": "1.30000",
-...         "state": "PENDING",
-...         "timeInForce": "GTC",
-...         "triggerCondition": "TRIGGER_DEFAULT",
-...         "type": "STOP",
-...         "units": "10000"
-...     }
-... }
+{
+    "lastTransactionID": "6375",
+    "order": {
+        "clientExtensions": {
+            "comment": "New idea for trading",
+            "id": "EUR_USD_3",
+            "tag": "strategy_9"
+        },
+        "createTime": "2016-06-22T18:41:29.294265338Z",
+        "id": "6375",
+        "instrument": "EUR_USD",
+        "partialFill": "DEFAULT_FILL",
+        "positionFill": "POSITION_DEFAULT",
+        "price": "1.30000",
+        "state": "PENDING",
+        "timeInForce": "GTC",
+        "triggerCondition": "TRIGGER_DEFAULT",
+        "type": "STOP",
+        "units": "10000"
+    }
+}
 ```
 The order above is still PENDING. Once it will be filled, the `state` key will show value `FILLED` and from the order becomes a trade.
 
@@ -353,44 +353,44 @@ In order to get trade details must be first filled an order. If this condition i
 
 ```python
 >>> o.get_trade(own_id="EUR_USD_6")
-... {
-...     "lastTransactionID": "1025",
-...     "trade": {
-...         "clientExtensions": {
-...             "id": "EUR_USD_6",
-...         },
-...         "currentUnits": "1",
-...         "financing": "0.0000",
-...         "id": "1023",
-...         "initialUnits": "1",
-...         "instrument": "EUR_USD",
-...         "openTime": "2016-08-17T15:21:29.306846600Z",
-...         "price": "1.12860",
-...         "realizedPL": "0.0000",
-...         "state": "OPEN",
-...         "stopLossOrder": {
-...             "createTime": "2016-08-17T15:21:29.715039917Z",
-...             "id": "1025",
-...             "price": "1.12507",
-...             "state": "PENDING",
-...             "timeInForce": "GTC",
-...             "tradeID": "1023",
-...             "triggerCondition": "TRIGGER_DEFAULT",
-...             "type": "STOP_LOSS"
-...         },
-...         "takeProfitOrder": {
-...             "createTime": "2016-08-17T15:21:29.715039917Z",
-...             "id": "1024",
-...             "price": "1.4",
-...             "state": "PENDING",
-...             "timeInForce": "GTC",
-...             "tradeID": "1023",
-...             "triggerCondition": "TRIGGER_DEFAULT",
-...             "type": "TAKE_PROFIT"
-...         },
-...         "unrealizedPL": "-0.0002"
-...     }
-... }
+{
+    "lastTransactionID": "1025",
+    "trade": {
+        "clientExtensions": {
+            "id": "EUR_USD_6",
+        },
+        "currentUnits": "1",
+        "financing": "0.0000",
+        "id": "1023",
+        "initialUnits": "1",
+        "instrument": "EUR_USD",
+        "openTime": "2016-08-17T15:21:29.306846600Z",
+        "price": "1.12860",
+        "realizedPL": "0.0000",
+        "state": "OPEN",
+        "stopLossOrder": {
+            "createTime": "2016-08-17T15:21:29.715039917Z",
+            "id": "1025",
+            "price": "1.12507",
+            "state": "PENDING",
+            "timeInForce": "GTC",
+            "tradeID": "1023",
+            "triggerCondition": "TRIGGER_DEFAULT",
+            "type": "STOP_LOSS"
+        },
+        "takeProfitOrder": {
+            "createTime": "2016-08-17T15:21:29.715039917Z",
+            "id": "1024",
+            "price": "1.4",
+            "state": "PENDING",
+            "timeInForce": "GTC",
+            "tradeID": "1023",
+            "triggerCondition": "TRIGGER_DEFAULT",
+            "type": "TAKE_PROFIT"
+        },
+        "unrealizedPL": "-0.0002"
+    }
+}
 ```
 
 Don't forget to use the Oanda definitions site for the keys above, concretely [HERE](http://developer.oanda.com/rest-live-v20/trades-df/) for trades.
@@ -422,33 +422,33 @@ Positions show cumulative profits and losses on both sides (LONG and SHORT) for 
 
 ```python
 >>> o.get_positions()
-... {
-...     "lastTransactionID": "6381",
-...     "positions": [
-...         {
-...             "instrument": "EUR_USD",
-...             "long": {
-...                 "pl": "-2.34608",
-...                 "resettablePL": "-2.34608",
-...                 "units": "0",
-...                 "unrealizedPL": "0.00000"
-...             },
-...             "pl": "-2.34608",
-...             "resettablePL": "-2.34608",
-...             "short": {
-...                 "pl": "0.00000",
-...                 "resettablePL": "0.00000",
-...                 "units": "0",
-...                 "unrealizedPL": "0.00000"
-...             },
-...             "unrealizedPL": "0.00000"
-...         },
-...         {
-...             "instrument": "USD_JPY",
-...             ...
-...         }
-...     ]
-... }
+{
+    "lastTransactionID": "6381",
+    "positions": [
+        {
+            "instrument": "EUR_USD",
+            "long": {
+                "pl": "-2.34608",
+                "resettablePL": "-2.34608",
+                "units": "0",
+                "unrealizedPL": "0.00000"
+            },
+            "pl": "-2.34608",
+            "resettablePL": "-2.34608",
+            "short": {
+                "pl": "0.00000",
+                "resettablePL": "0.00000",
+                "units": "0",
+                "unrealizedPL": "0.00000"
+            },
+            "unrealizedPL": "0.00000"
+        },
+        {
+            "instrument": "USD_JPY",
+            ...
+        }
+    ]
+}
 ```
 
 ---
@@ -466,10 +466,10 @@ Oanda provides datetime in RFC 3339 format which is incompatible with Python dat
 >>> import datetime 
 >>>
 >>> oanda_datetime = "2016-06-22T18:41:29.294265338Z"
->>> cut_it_off = oanda_datetime[:-4]
+>>> cutted_datetime = oanda_datetime[:-4]  # removing last 4 characters
 >>>
->>> datetime.datetime.strptime(cut_it_off, "%Y-%m-%dT%H:%M:%S.%f")
+>>> datetime.datetime.strptime(cutted_datetime, "%Y-%m-%dT%H:%M:%S.%f")
 datetime.datetime(2016, 6, 22, 18, 41, 29, 294265)
+```
 
 [api-reference]: https://github.com/nait-aul/oandav20/blob/master/docs/api-reference.md
-
