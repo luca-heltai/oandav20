@@ -1,5 +1,6 @@
 clean:
-	find . -type f -name "*~" -exec rm -f {} \;
+	find . -type d -name "__pycache__" -delete
+	find . -type f -name "*~" -delete
 
 release:
 	python setup.py register
