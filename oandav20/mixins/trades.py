@@ -1,6 +1,6 @@
 from typing import List
 
-from .account import INSTRUMENTS
+from oandav20.mixins.account import INSTRUMENTS
 
 
 class TradesMixin:

@@ -1,6 +1,6 @@
 from typing import Any, List, Union
 
-from .account import INSTRUMENTS
+from oandav20.mixins.account import INSTRUMENTS
 
 
 class OrdersMixin:
