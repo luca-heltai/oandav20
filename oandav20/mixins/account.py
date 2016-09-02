@@ -326,7 +326,7 @@ class AccountMixin:
         Arguments:
             instruments:
                 Code of instrument(s).
-            account_id (str):
+            account_id:
                 Oanda trading account ID, otherwise 'default_id' will be used.
 
         Returns:

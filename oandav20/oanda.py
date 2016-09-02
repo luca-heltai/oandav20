@@ -29,12 +29,12 @@ class Oanda(AccountMixin, OrdersMixin, TradesMixin, PositionsMixin,
     methods.
 
     Attributes:
-        base_url:
+        base_url (str):
             Base url alias prefix for all endpoints.
-        client:
+        client (requests.Session):
             Session object with HTTP persistent connection to the Oanda API
             server.
-        default_id:
+        default_id (str):
             Default Oanda trading account ID.
     """
 
