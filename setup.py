@@ -19,7 +19,7 @@ setup(
     author="Nait Aul",
     author_email="nait-aul@protonmail.com",
     url="https://github.com/nait-aul/oandav20",
-    licence="MIT License",
+    license="MIT License",
     packages=find_packages(),
     install_requires=[
         "requests"
